@@ -6,10 +6,17 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient"; // Supabase client yo'li mos bo'lishi kerak
 
+// Tip aniqlash
+type Book = {
+  id: number;
+  title: string;
+  author: string;
+};
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Book[]>([]);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -19,17 +26,21 @@ export default function Navbar() {
       }
 
       const { data, error } = await supabase
-        .from("books") // Jadval nomi
+        .from("books")
         .select("*")
         .or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`);
 
-      if (error) console.error("Search error:", error);
-      else setSearchResults(data);
+      if (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } else {
+        setSearchResults(data as Book[]); // Tipni majburan belgilash
+      }
     };
 
     const delayDebounce = setTimeout(() => {
       fetchBooks();
-    }, 400); // Debounce: 400ms
+    }, 400);
 
     return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
@@ -63,7 +74,6 @@ export default function Navbar() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {/* <Button>Kirish</Button> */}
       </div>
 
       {searchResults.length > 0 && (
