@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { use, useState } from "react";
-import { cn } from "@/lib/utils"; // ShadCN kutubxonasidan import qilish
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -18,7 +17,7 @@ export default function Navbar() {
           <li><Link href="/" className="hover:text-gray-400">Bosh sahifa</Link></li>
           {/* <li><Link href="/book" className="hover:text-gray-400">Kitoblar</Link></li> */}
           {/* <li><Link href="/cart" className="hover:text-gray-400">Savatcha</Link></li> */}
-          <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo'shish</Link></li>
+          <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo&apos;shish</Link></li>
         </ul>
       </div>
 
@@ -31,7 +30,7 @@ export default function Navbar() {
             <Link href="/" className="block text-white">Bosh sahifa</Link>
             {/* <Link href="/book" className="block text-white">Kitoblar</Link> */}
             {/* <Link href="/cart" className="block text-white">Savatcha</Link> */}
-            <Link href="/admin" className="block text-white">Kitob qo'shish</Link>
+            <Link href="/admin" className="block text-white">Kitob qo&apos;shish</Link>
           </div>
         )}
       </div>

@@ -13,7 +13,7 @@ const CartPage: React.FC = () => {
         ← Bosh sahifaga qaytish
       </Link>
       <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Savatcha</h1>
-      <p>Bu yerda savatchadagi kitoblar ro'yxati va umumiy ma'lumotlar chiqadi.</p>
+      <p>Bu yerda savatchadagi kitoblar ro&apos;yxati va umumiy ma&apos;lumotlar chiqadi.</p>
     </main>
   );
 };

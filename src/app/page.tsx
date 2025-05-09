@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 // import Navbar from "@/components/ui/navbar";
 
@@ -42,7 +43,7 @@ export default function Home() {
   return (
     <main className="container mx-auto py-8 px-4">
       {/* <Navbar /> */}
-      <h1 className="text-3xl font-bold mb-8">Kitoblar Ro'yxati</h1>
+      <h1 className="text-3xl font-bold mb-8">Kitoblar Ro&apos;yxati</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {books.map((book) => (
@@ -54,7 +55,7 @@ export default function Home() {
               <p className="font-semibold">Muallif: {book.author}</p>
               <p className="mt-2 text-gray-600">{book.description}</p>
               {book.image_url && (
-                <img
+                <Image
                   src={book.image_url}
                   alt={book.title}
                   className="mt-4 w-full h-48 object-cover rounded"
@@ -72,7 +73,7 @@ export default function Home() {
       </div>
 
       {books.length === 0 && (
-        <p className="text-center text-gray-500">Hozircha kitoblar yo'q</p>
+        <p className="text-center text-gray-500">Hozircha kitoblar yo&apos;q</p>
       )}
     </main>
   );
