@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -41,7 +40,7 @@ export default function Navbar() {
         <h1 className="text-2xl font-semibold">Logo</h1>
         <ul className="hidden sm:flex space-x-4">
           <li><Link href="/" className="hover:text-gray-400">Bosh sahifa</Link></li>
-          <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo'shish</Link></li>
+          <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo&apos;shish</Link></li>
         </ul>
       </div>
 
@@ -52,7 +51,7 @@ export default function Navbar() {
         {isOpen && (
           <div className="absolute top-16 right-0 w-48 bg-gray-800 p-4 space-y-2 z-50">
             <Link href="/" className="block text-white">Bosh sahifa</Link>
-            <Link href="/admin" className="block text-white">Kitob qo'shish</Link>
+            <Link href="/admin" className="block text-white">Kitob qo&apos;shish</Link>
           </div>
         )}
       </div>
