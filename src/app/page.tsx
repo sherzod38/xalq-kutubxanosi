@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 // import Navbar from "@/components/ui/navbar";
 
 interface Book {
@@ -58,15 +59,17 @@ export default function Home() {
                 <Image
                   src={book.image_url}
                   alt={book.title}
+                  width={300}
+                  height={400}
                   className="mt-4 w-full h-48 object-cover rounded"
                 />
               )}
-              <a
-                href={`/book/${book.id}`}
+              <Link
+               href={`/book/${book.id}`}
                 className="mt-4 inline-block text-blue-600 hover:underline"
               >
                 Batafsil →
-              </a>
+              </Link>
             </CardContent>
           </Card>
         ))}
