@@ -1,5 +1,5 @@
-"use client"; // ← Bu MUHIM!
 
+"use client";
 
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
@@ -8,15 +8,43 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, X } from "lucide-react";
+
+interface FormData {
+  title: string;
+  author: string;
+  description: string;
+  imageUrl: string;
+}
 
 const AdminDashboard: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [formData, setFormData] = useState<FormData>({
+    title: "",
+    author: "",
+    description: "",
+    imageUrl: "",
+  });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      author: "",
+      description: "",
+      imageUrl: "",
+    });
+    setSuccess("");
+    setError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,74 +52,149 @@ const AdminDashboard: React.FC = () => {
     setSuccess("");
     setError("");
 
-    const { error } = await supabase.from("books").insert([
-      {
-        title,
-        author,
-        description,
-        image_url: imageUrl ? imageUrl : null,
-      },
-    ]);
+    // Validatsiya
+    if (!formData.title.trim() || !formData.author.trim() || !formData.description.trim()) {
+      setError("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+      setLoading(false);
+      return;
+    }
 
-    setLoading(false);
+    try {
+      const { error } = await supabase.from("books").insert([
+        {
+          title: formData.title,
+          author: formData.author,
+          description: formData.description,
+          image_url: formData.imageUrl.trim() || null,
+        },
+      ]);
 
-    if (error) {
-      setError("Kitobni qo'shishda xatolik yuz berdi.");
-    } else {
+      if (error) {
+        throw new Error(error.message);
+      }
+
       setSuccess("Kitob muvaffaqiyatli qo'shildi!");
-      setTitle("");
-      setAuthor("");
-      setDescription("");
-      setImageUrl("");
+      resetForm();
+    } catch (error) {
+      setError("Kitobni qo'shishda xatolik yuz berdi: " + (error instanceof Error ? error.message : 'Noma\'lum xatolik'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="flex justify-center items-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader>
-          <CardTitle>Admin Dashboard</CardTitle>
+    <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-lg shadow-xl">
+        <CardHeader className="border-b">
+          <CardTitle className="text-2xl font-bold text-center">
+            Admin Paneli: Yangi Kitob Qo'shish
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Input
-              type="text"
-              placeholder="Kitob nomi"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-            <Input
-              type="text"
-              placeholder="Muallif"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              required
-            />
-            <Textarea
-              placeholder="Tavsif"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-            <Input
-              type="text"
-              placeholder="Rasm URL (ixtiyoriy)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
-            <Button type="submit" disabled={loading}>
-              {loading ? "Yuklanmoqda..." : "Kitob qo'shish"}
-            </Button>
+        <CardContent className="pt-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                Kitob nomi <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="title"
+                name="title"
+                type="text"
+                placeholder="Masalan: Alkimyogar"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+                Muallif <span className="text-red-500">*</span>
+              </label>
+              <Input
+                id="author"
+                name="author"
+                type="text"
+                placeholder="Masalan: Paulo Koelyo"
+                value={formData.author}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                Tavsif <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Kitob haqida qisqacha ma'lumot..."
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+                disabled={loading}
+                className="w-full"
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                Rasm URL (ixtiyoriy)
+              </label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                type="text"
+                placeholder="Masalan: https://example.com/image.jpg"
+                value={formData.imageUrl}
+                onChange={handleInputChange}
+                disabled={loading}
+                className="w-full"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Yuklanmoqda...
+                  </>
+                ) : (
+                  "Kitob qo'shish"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={loading}
+                className="flex-1"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Tozalash
+              </Button>
+            </div>
           </form>
+
           {success && (
-            <Alert className="mt-4">
-              <AlertTitle>Muvaffaqiyat!</AlertTitle>
-              <AlertDescription>{success}</AlertDescription>
+            <Alert className="mt-6 bg-green-50 border-green-200 animate-in fade-in">
+              <AlertTitle className="text-green-700">Muvaffaqiyat!</AlertTitle>
+              <AlertDescription className="text-green-600">{success}</AlertDescription>
             </Alert>
           )}
           {error && (
-            <Alert variant="destructive" className="mt-4">
+            <Alert variant="destructive" className="mt-6 animate-in fade-in">
               <AlertTitle>Xatolik!</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>

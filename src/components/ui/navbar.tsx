@@ -1,29 +1,56 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { usePathname, useRouter } from "next/navigation"; // App Router uchun
 import { supabase } from "@/lib/supabaseClient";
-import { User } from "@supabase/supabase-js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-type Book = {
+interface Book {
   id: number;
   title: string;
   author: string;
-};
+  description: string;
+  image_url: string | null;
+}
 
-export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+interface User {
+  id: string;
+  email: string;
+}
+
+const Navbar: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
+  const router = useRouter(); // App Router uchun useRouter
+  const pathname = usePathname(); // Joriy sahifa yo‘lini olish
 
+  // Foydalanuvchi holatini tekshirish
   useEffect(() => {
-    const fetchBooks = async () => {
-      if (searchTerm.trim() === "") {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user ? { id: user.id, email: user.email! } : null);
+    };
+
+    fetchUser();
+
+    // Auth holati o‘zgarishini kuzatish
+    const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+      setUser(session?.user ? { id: session.user.id, email: session.user.email! } : null);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Kitoblarni qidirish
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!searchQuery.trim()) {
         setSearchResults([]);
         return;
       }
@@ -31,100 +58,101 @@ export default function Navbar() {
       const { data, error } = await supabase
         .from("books")
         .select("*")
-        .or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`);
+        .ilike("title", `%${searchQuery}%`);
 
       if (error) {
-        console.error("Search error:", error);
-        setSearchResults([]);
+        console.error("Qidiruvda xatolik:", error);
       } else {
-        setSearchResults(data as Book[]);
+        setSearchResults(data || []);
       }
-    };
+    }, 300);
 
-    const delayDebounce = setTimeout(() => {
-      fetchBooks();
-    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-    };
-
-    getSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/auth");
-    }
-  }, [user, router]);
+  // Chiqish funksiyasi
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/"); // Bosh sahifaga yo‘naltirish
+  };
 
   return (
-    <nav className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-800 text-white relative">
-      <div className="flex items-center space-x-4">
-        <h1 className="text-2xl font-semibold">Logo</h1>
-        <ul className="hidden sm:flex space-x-4">
-          <li><Link href="/" className="hover:text-gray-400">Bosh sahifa</Link></li>
-          {user && <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo&apos;shish</Link></li>}
-        </ul>
-      </div>
+    <nav className="bg-blue-600 text-white p-4 shadow-md">
+      <div className="container mx-auto flex justify-between items-center">
+        <Link href="/" className="text-xl font-bold">
+          Xalq Kutubxonasi
+        </Link>
 
-      <div className="sm:hidden mt-2">
-        <Button onClick={() => setIsOpen(!isOpen)}>
-          <span className="material-icons">menu</span>
-        </Button>
-        {isOpen && (
-          <div className="absolute top-16 right-0 w-48 bg-gray-800 p-4 space-y-2 z-50">
-            <Link href="/" className="block text-white">Bosh sahifa</Link>
-            {user && <Link href="/admin" className="block text-white">Kitob qo&apos;shish</Link>}
+        <div className="flex items-center gap-6">
+          {/* Qidiruv formasi */}
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Kitob qidirish..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-white text-black w-64 rounded-md"
+            />
+            {searchResults.length > 0 && (
+              <div className="absolute top-12 bg-white text-black shadow-lg rounded-md w-64 max-h-60 overflow-y-auto z-10">
+                {searchResults.map((book) => (
+                  <Link
+                    key={book.id}
+                    href={`/book/${book.id}`}
+                    className="block p-2 hover:bg-gray-100"
+                  >
+                    {book.title} - {book.author}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-        <Input
-          placeholder="Qidirish: nomi yoki muallif"
-          className="bg-gray-700 text-white w-full sm:w-64"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {!user ? (
-          <>
-            <Button onClick={() => supabase.auth.signInWithOAuth({ provider: 'google' })}>Kirish</Button>
-            <Button onClick={() => router.push("/auth")}>Ro&apos;yxatdan o&apos;tish</Button>
-          </>
-        ) : (
-          <Button onClick={() => supabase.auth.signOut()}>Chiqish</Button>
-        )}
-      </div>
+          {/* Navigatsiya havolalari */}
+          <div className="flex gap-4 items-center">
+            <Link
+              href="/"
+              className={`hover:underline ${pathname === "/" ? "underline" : ""}`}
+            >
+              Bosh sahifa
+            </Link>
+            {/* Admin havolasi faqat autentifikatsiyadan o‘tgan foydalanuvchilar uchun */}
+            {user && (
+              <Link
+                href="/admin"
+                className={`hover:underline ${pathname === "/admin" ? "underline" : ""}`}
+              >
+                Kitob qo‘shish
+              </Link>
+            )}
+          </div>
 
-      {searchResults.length > 0 && (
-        <div className="absolute top-full left-0 w-full bg-white text-black shadow-lg mt-2 rounded z-50 p-2 max-h-60 overflow-auto">
-          <ul>
-            {searchResults.map((book) => (
-              <li key={book.id} className="p-2 border-b hover:bg-gray-100">
-                <Link href={`/book/${book.id}`} className="block">
-                  <strong>{book.title}</strong> — {book.author}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* Foydalanuvchi holati */}
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm">{user.email}</span>
+              <Button
+                variant="ghost"
+                onClick={handleSignOut}
+                className="text-white hover:bg-blue-700"
+              >
+                Chiqish
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={() => router.push("/login")}
+              className="text-white hover:bg-blue-700"
+            >
+              Kirish
+            </Button>
+          )}
         </div>
-      )}
+      </div>
     </nav>
   );
-}
+};
+
+export default Navbar;
