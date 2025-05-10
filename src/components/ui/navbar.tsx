@@ -81,7 +81,9 @@ export default function Navbar() {
           <ul>
             {searchResults.map((book) => (
               <li key={book.id} className="p-2 border-b hover:bg-gray-100">
-                <strong>{book.title}</strong> — {book.author}
+                <Link href={`/book/${book.id}`} className="block">
+                  <strong>{book.title}</strong> — {book.author}
+                </Link>
               </li>
             ))}
           </ul>
