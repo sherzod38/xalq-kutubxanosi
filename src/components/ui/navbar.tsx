@@ -4,9 +4,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient"; // Supabase client yo'li mos bo'lishi kerak
+import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabaseClient";
 
-// Tip aniqlash
 type Book = {
   id: number;
   title: string;
@@ -17,6 +17,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Book[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -34,7 +36,7 @@ export default function Navbar() {
         console.error("Search error:", error);
         setSearchResults([]);
       } else {
-        setSearchResults(data as Book[]); // Tipni majburan belgilash
+        setSearchResults(data as Book[]);
       }
     };
 
@@ -45,13 +47,38 @@ export default function Navbar() {
     return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
 
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth");
+    }
+  }, [user, router]);
+
   return (
     <nav className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-800 text-white relative">
       <div className="flex items-center space-x-4">
         <h1 className="text-2xl font-semibold">Logo</h1>
         <ul className="hidden sm:flex space-x-4">
           <li><Link href="/" className="hover:text-gray-400">Bosh sahifa</Link></li>
-          <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo&apos;shish</Link></li>
+          {user && <li><Link href="/admin" className="hover:text-gray-400">Kitob Qo&apos;shish</Link></li>}
         </ul>
       </div>
 
@@ -62,7 +89,7 @@ export default function Navbar() {
         {isOpen && (
           <div className="absolute top-16 right-0 w-48 bg-gray-800 p-4 space-y-2 z-50">
             <Link href="/" className="block text-white">Bosh sahifa</Link>
-            <Link href="/admin" className="block text-white">Kitob qo&apos;shish</Link>
+            {user && <Link href="/admin" className="block text-white">Kitob qo&apos;shish</Link>}
           </div>
         )}
       </div>
@@ -74,6 +101,14 @@ export default function Navbar() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        {!user ? (
+          <>
+            <Button onClick={() => supabase.auth.signInWithOAuth({ provider: 'google' })}>Kirish</Button>
+            <Button onClick={() => router.push("/auth")}>Ro'yxatdan o'tish</Button>
+          </>
+        ) : (
+          <Button onClick={() => supabase.auth.signOut()}>Chiqish</Button>
+        )}
       </div>
 
       {searchResults.length > 0 && (
