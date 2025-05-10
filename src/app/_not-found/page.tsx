@@ -1,4 +1,4 @@
-
+"use client"; // bu MUHIM
 import Link from "next/link";
 
 export default function NotFoundPage() {
