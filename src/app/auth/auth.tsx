@@ -38,7 +38,7 @@ const AuthPage: React.FC = () => {
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-4 bg-white shadow-lg rounded">
-        <h1 className="text-2xl font-bold text-center">Ro'yxatdan o'tish</h1>
+        <h1 className="text-2xl font-bold text-center">Ro&apos;yxatdan o&apos;tish</h1>
         <form onSubmit={handleSignUp} className="flex flex-col gap-4">
           <Input
             type="email"
