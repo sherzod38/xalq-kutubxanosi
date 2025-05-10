@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [authMessage, setAuthMessage] = useState("");
@@ -22,7 +21,7 @@ const LoginPage: React.FC = () => {
     const message = localStorage.getItem("authMessage");
     if (message) {
       setAuthMessage(message);
-      localStorage.removeItem("authMessage"); // Xabarni bir marta korsatgandan so‘ng o‘chirish
+      localStorage.removeItem("authMessage"); // Xabarni bir marta korsatgandan song o‘chirish
     }
   }, []);
 
@@ -39,7 +38,7 @@ const LoginPage: React.FC = () => {
     if (error) {
       setError("Kirishda xatolik: " + error.message);
     } else {
-      router.push("/admin");
+      router.push("/admin"); // Muvaffaqiyatli kirganda admin sahifasiga yonaltirish
     }
   };
 
