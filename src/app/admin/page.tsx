@@ -1,4 +1,5 @@
 
+// app/admin/page.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   title: string;
@@ -27,6 +29,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -52,9 +55,18 @@ const AdminDashboard: React.FC = () => {
     setSuccess("");
     setError("");
 
+    // Foydalanuvchi autentifikatsiyasini tekshirish
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      localStorage.setItem("authMessage", "Siz avval royxatdan oting.");
+      router.push("/login");
+      setLoading(false);
+      return;
+    }
+
     // Validatsiya
     if (!formData.title.trim() || !formData.author.trim() || !formData.description.trim()) {
-      setError("Iltimos, barcha majburiy maydonlarni to'ldiring.");
+      setError("Iltimos, barcha majburiy maydonlarni toldiring.");
       setLoading(false);
       return;
     }
@@ -73,10 +85,10 @@ const AdminDashboard: React.FC = () => {
         throw new Error(error.message);
       }
 
-      setSuccess("Kitob muvaffaqiyatli qo'shildi!");
+      setSuccess("Kitob muvaffaqiyatli qoshildi!");
       resetForm();
-    } catch (error) {
-      setError("Kitobni qo'shishda xatolik yuz berdi: " + (error instanceof Error ? error.message : 'Noma\'lum xatolik'));
+    } catch (err) {
+      setError(`Kitobni qo'shishda xatolik yuz berdi: ${err instanceof Error ? err.message : 'Noma\'lum xatolik'}`);
     } finally {
       setLoading(false);
     }
@@ -87,7 +99,7 @@ const AdminDashboard: React.FC = () => {
       <Card className="w-full max-w-lg shadow-xl">
         <CardHeader className="border-b">
           <CardTitle className="text-2xl font-bold text-center">
-            Admin Paneli: Yangi Kitob Qo&apos;shish
+            Admin Paneli: Yangi Kitob Qoshish
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -133,7 +145,7 @@ const AdminDashboard: React.FC = () => {
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Kitob haqida qisqacha ma&apos;lumot..."
+                placeholder="Kitob haqida qisqacha malumot..."
                 value={formData.description}
                 onChange={handleInputChange}
                 required
@@ -171,7 +183,7 @@ const AdminDashboard: React.FC = () => {
                     Yuklanmoqda...
                   </>
                 ) : (
-                  "Kitob qo&apos;shish"
+                  "Kitob qoshish"
                 )}
               </Button>
               <Button

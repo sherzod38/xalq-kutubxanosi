@@ -1,4 +1,5 @@
 
+// src/components/ui/navbar.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -26,7 +27,7 @@ const Navbar: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter(); // App Router uchun useRouter
-  const pathname = usePathname(); // Joriy sahifa yo‘lini olish
+  const pathname = usePathname(); // Joriy sahifa yolini olish
 
   // Foydalanuvchi holatini tekshirish
   useEffect(() => {
@@ -37,7 +38,7 @@ const Navbar: React.FC = () => {
 
     fetchUser();
 
-    // Auth holati o‘zgarishini kuzatish
+    // Auth holati ozgarishini kuzatish
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ? { id: session.user.id, email: session.user.email! } : null);
     });
@@ -74,7 +75,7 @@ const Navbar: React.FC = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push("/"); // Bosh sahifaga yo&apos;naltirish
+    router.push("/"); // Bosh sahifaga yonaltirish
   };
 
   return (
@@ -117,15 +118,13 @@ const Navbar: React.FC = () => {
             >
               Bosh sahifa
             </Link>
-            {/* Admin havolasi faqat autentifikatsiyadan o&apos;tgan foydalanuvchilar uchun */}
-            {user && (
-              <Link
-                href="/admin"
-                className={`hover:underline ${pathname === "/admin" ? "underline" : ""}`}
-              >
-                Kitob qo&apos;shish
-              </Link>
-            )}
+            {/* Kitob qoshish tugmasi hamma uchun korinadi */}
+            <Link
+              href="/admin"
+              className={`hover:underline ${pathname === "/admin" ? "underline" : ""}`}
+            >
+              Kitob qoshish
+            </Link>
           </div>
 
           {/* Foydalanuvchi holati */}
