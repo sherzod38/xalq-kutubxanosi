@@ -15,6 +15,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const router = useRouter();
+  const [phoneNumber, setPhoneNumber] = useState(""); // Telefon raqami uchun holat
 
   // localStorage dan xabarni o‘qish
   useEffect(() => {
@@ -31,14 +32,14 @@ const LoginPage: React.FC = () => {
     setAuthMessage("");
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      phone: phoneNumber, // Telefon raqamini ishlatish
       password,
     });
 
     if (error) {
       setError("Kirishda xatolik: " + error.message);
     } else {
-      router.push("/admin"); // Muvaffaqiyatli kirganda admin sahifasiga yonaltirish
+      router.push("/admin");
     }
   };
 
@@ -48,15 +49,15 @@ const LoginPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-6 text-center">Kirish</h1>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+              Telefon raqami
             </label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Email kiriting"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="phoneNumber"
+              type="tel"
+              placeholder="Telefon raqamini kiriting"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               required
             />
           </div>
