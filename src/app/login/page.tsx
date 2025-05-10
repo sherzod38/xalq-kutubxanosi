@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
     // Telefon raqami validatsiyasi
     const phoneRegex = /^\+998[0-9]{9}$/;
     if (!phoneRegex.test(phone)) {
-      setError("Iltimos, togri telefon raqamini kiriting (masalan, +998901234567).");
+      setError("Iltimos, to‘g‘ri telefon raqamini kiriting (masalan, +998901234567).");
       setLoading(false);
       return;
     }
@@ -55,8 +55,8 @@ const LoginPage: React.FC = () => {
       } else {
         setStep("otp"); // OTP kiritish formasiga o‘tish
       }
-    } catch (err) {
-      setError("Nomalum xatolik yuz berdi.");
+    } catch {
+      setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);
     }
@@ -81,8 +81,8 @@ const LoginPage: React.FC = () => {
       } else {
         router.push("/admin"); // Muvaffaqiyatli kirganda admin sahifasiga yo‘naltirish
       }
-    } catch (err) {
-      setError("Nomalum xatolik yuz berdi.");
+    } catch {
+      setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);
     }
