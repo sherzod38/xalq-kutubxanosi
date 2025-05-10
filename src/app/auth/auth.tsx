@@ -55,7 +55,7 @@ const AuthPage: React.FC = () => {
             required
           />
           <Button type="submit" disabled={loading}>
-            {loading ? "Yuklanmoqda..." : "Ro'yxatdan o'tish"}
+            {loading ? "Yuklanmoqda..." : "Ro&apos;yxatdan o&apos;tish"}
           </Button>
         </form>
         {success && (
