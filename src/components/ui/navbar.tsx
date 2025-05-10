@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push("/"); // Bosh sahifaga yo‘naltirish
+    router.push("/"); // Bosh sahifaga yo&apos;naltirish
   };
 
   return (
@@ -117,13 +117,13 @@ const Navbar: React.FC = () => {
             >
               Bosh sahifa
             </Link>
-            {/* Admin havolasi faqat autentifikatsiyadan o‘tgan foydalanuvchilar uchun */}
+            {/* Admin havolasi faqat autentifikatsiyadan o&apos;tgan foydalanuvchilar uchun */}
             {user && (
               <Link
                 href="/admin"
                 className={`hover:underline ${pathname === "/admin" ? "underline" : ""}`}
               >
-                Kitob qo‘shish
+                Kitob qo&apos;shish
               </Link>
             )}
           </div>

@@ -87,7 +87,7 @@ const AdminDashboard: React.FC = () => {
       <Card className="w-full max-w-lg shadow-xl">
         <CardHeader className="border-b">
           <CardTitle className="text-2xl font-bold text-center">
-            Admin Paneli: Yangi Kitob Qo'shish
+            Admin Paneli: Yangi Kitob Qo&apos;shish
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -133,7 +133,7 @@ const AdminDashboard: React.FC = () => {
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Kitob haqida qisqacha ma'lumot..."
+                placeholder="Kitob haqida qisqacha ma&apos;lumot..."
                 value={formData.description}
                 onChange={handleInputChange}
                 required
@@ -171,7 +171,7 @@ const AdminDashboard: React.FC = () => {
                     Yuklanmoqda...
                   </>
                 ) : (
-                  "Kitob qo'shish"
+                  "Kitob qo&apos;shish"
                 )}
               </Button>
               <Button
