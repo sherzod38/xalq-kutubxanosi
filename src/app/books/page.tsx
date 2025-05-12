@@ -1,6 +1,5 @@
 
 // src/app/books/page.tsx
-import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
