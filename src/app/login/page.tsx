@@ -1,5 +1,5 @@
 
-// app/login/page.tsx
+// src/app/login/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -8,14 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const LoginPage: React.FC = () => {
-  const [phone, setPhone] = useState(""); // Telefon raqami
-  const [otp, setOtp] = useState(""); // OTP kodi
-  const [step, setStep] = useState<"phone" | "otp">("phone"); // Forma holati
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("login");
   const router = useRouter();
 
   // localStorage dan xabarni o‘qish
@@ -23,142 +25,192 @@ const LoginPage: React.FC = () => {
     const message = localStorage.getItem("authMessage");
     if (message) {
       setAuthMessage(message);
-      localStorage.removeItem("authMessage"); // Xabarni bir marta ko‘rsatgandan so‘ng o‘chirish
+      localStorage.removeItem("authMessage");
     }
   }, []);
 
-  // Telefon raqamini yuborish (OTP so‘rash)
-  const handleSendOtp = async (e: React.FormEvent) => {
+  // Email validatsiyasi
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Kirish funksiyasi
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setAuthMessage("");
+    setSuccess("");
     setLoading(true);
 
-    // Telefon raqami validatsiyasi
-    const phoneRegex = /^\+998[0-9]{9}$/;
-    if (!phoneRegex.test(phone)) {
-      setError("Iltimos, to‘g‘ri telefon raqamini kiriting (masalan, +998901234567).");
+    if (!email || !password) {
+      setError("Email va parol maydonlari to‘ldirilishi shart.");
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Noto‘g‘ri email formati.");
       setLoading(false);
       return;
     }
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone,
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError("Kirishda xatolik: " + error.message);
+      } else {
+        router.push("/admin");
+      }
+    } catch {
+      setError("Noma’lum xatolik yuz berdi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ro‘yxatdan o‘tish funksiyasi
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    if (!email || !password) {
+      setError("Email va parol maydonlari to‘ldirilishi shart.");
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError("Noto‘g‘ri email formati.");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Parol kamida 6 belgi bo‘lishi kerak.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
-          shouldCreateUser: true, // Agar foydalanuvchi mavjud bo‘lmasa, yaratiladi
+          data: { email },
+          emailRedirectTo: `${window.location.origin}/login`,
         },
       });
 
       if (error) {
-        setError("OTP yuborishda xatolik: " + error.message);
+        setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
       } else {
-        setStep("otp"); // OTP kiritish formasiga o‘tish
+        setSuccess("Ro‘yxatdan o‘tish muvaffaqiyatli! Emailingizni tasdiqlang.");
+        setEmail("");
+        setPassword("");
       }
     } catch {
       setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);
     }
-  };
-
-  // OTP’ni tasdiqlash
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setAuthMessage("");
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone,
-        token: otp,
-        type: "sms",
-      });
-
-      if (error) {
-        setError("OTP tasdiqlashda xatolik: " + error.message);
-      } else {
-        router.push("/admin"); // Muvaffaqiyatli kirganda admin sahifasiga yo‘naltirish
-      }
-    } catch {
-      setError("Noma’lum xatolik yuz berdi.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Orqaga qaytish (telefon raqami formasiga)
-  const handleBack = () => {
-    setStep("phone");
-    setOtp("");
-    setError("");
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Kirish</h1>
-        {step === "phone" ? (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Telefon raqami
-              </label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+998901234567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={loading}
-            >
-              {loading ? "Yuborilmoqda..." : "OTP kodini yuborish"}
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
-                OTP kodi
-              </label>
-              <Input
-                id="otp"
-                type="text"
-                placeholder="6 raqamli kodni kiriting"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-            <div className="flex gap-3">
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          {activeTab === "login" ? "Kirish" : "Ro‘yxatdan o‘tish"}
+        </h1>
+        <Tabs defaultValue="login" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="login" activeTab={activeTab} onTabChange={setActiveTab}>Kirish</TabsTrigger>
+            <TabsTrigger value="signup" activeTab={activeTab} onTabChange={setActiveTab}>Ro‘yxatdan o‘tish</TabsTrigger>
+          </TabsList>
+          <TabsContent value="login" activeTab={activeTab}>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Email manzilingizni kiriting"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Parol
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Parolingizni kiriting"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
               <Button
                 type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700"
                 disabled={loading}
               >
-                {loading ? "Tasdiqlanmoqda..." : "Tasdiqlash"}
+                {loading ? "Kirilmoqda..." : "Kirish"}
               </Button>
+            </form>
+          </TabsContent>
+          <TabsContent value="signup" activeTab={activeTab}>
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div>
+                <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  placeholder="Email manzilingizni kiriting"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Parol
+                </label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  placeholder="Parolingizni kiriting (min 6 belgi)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
               <Button
-                type="button"
-                variant="outline"
-                onClick={handleBack}
-                className="flex-1"
+                type="submit"
+                className="w-full bg-green-600 hover:bg-green-700"
                 disabled={loading}
               >
-                Orqaga
+                {loading ? "Ro‘yxatdan o‘tilmoqda..." : "Ro‘yxatdan o‘tish"}
               </Button>
-            </div>
-          </form>
-        )}
+            </form>
+          </TabsContent>
+        </Tabs>
         {authMessage && (
           <Alert variant="destructive" className="mt-4">
             <AlertTitle>Xabar</AlertTitle>
@@ -169,6 +221,12 @@ const LoginPage: React.FC = () => {
           <Alert variant="destructive" className="mt-4">
             <AlertTitle>Xatolik</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {success && (
+          <Alert variant="default" className="mt-4">
+            <AlertTitle>Muvaffaqiyat</AlertTitle>
+            <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
       </div>
