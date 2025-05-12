@@ -40,7 +40,12 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
   const supabase = createServerActionClient({ cookies });
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error("Autentifikatsiya xatosi:", authError.message);
+  }
 
   let query = supabase
     .from("books")
@@ -77,6 +82,11 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
       {error && (
         <Alert variant="destructive" className="w-full max-w-4xl mb-6">
           <AlertDescription>Xatolik: {error.message}</AlertDescription>
+        </Alert>
+      )}
+      {authError && (
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+          <AlertDescription>Autentifikatsiya xatosi: Iltimos, qayta kiring.</AlertDescription>
         </Alert>
       )}
       {books && books.length > 0 ? (

@@ -1,83 +1,64 @@
-"use client";
 
-import React, { useEffect, useState } from "react";
+// src/app/page.tsx
 import { supabase } from "@/lib/supabaseClient";
-import Image from "next/image";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Book {
-  id: number;
+  id: string;
   title: string;
   author: string;
-  description: string;
-  image_url: string | null;
+  description: string | null;
+  phone_number: string | null;
+  region: string | null;
+  district: string | null;
+  created_by: string | null;
+  created_at: string;
 }
-export default function Home() {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
-  
 
-  useEffect(() => {
-    async function fetchBooks() {
-      const { data, error } = await supabase
-        .from("books")
-        .select("*")
-        .order("id", { ascending: false });
-
-      if (error) {
-        console.error("Kitoblarni yuklashda xatolik:", error);
-      } else {
-        setBooks(data || []);
-      }
-      setLoading(false);
-    }
-
-    fetchBooks();
-  }, []);
-
-  if (loading) {
-    return <div>Yuklanmoqda...</div>;
-  }
+export default async function HomePage() {
+  const { data: books, error } = await supabase
+    .from("books")
+    .select("id, title, author, description, phone_number, region, district, created_by, created_at");
 
   return (
-    <main className="container mx-auto py-8 px-4">
-      {/* <Navbar /> */}
-      <h1 className="text-3xl font-bold mb-8">Kitoblar Ro&apos;yxati</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {books.map((book) => (
-          <Card key={book.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle>{book.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-semibold">Muallif: {book.author}</p>
-              <p className="mt-2 text-gray-600">{book.description}</p>
-              {book.image_url && (
-                <Image
-                  src={book.image_url}
-                  alt={book.title}
-                  width={300}
-                  height={400}
-                  className="mt-4 w-full h-48 object-cover rounded"
-                />
-              )}
-              <Link
-               href={`/book/${book.id}`}
-                className="mt-4 inline-block text-blue-600 hover:underline"
-              >
-                Batafsil →
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {books.length === 0 && (
-        <p className="text-center text-gray-500">Hozircha kitoblar yo&apos;q</p>
+    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
+      <h1 className="text-2xl font-bold mb-6">Xalq Kutubxonasi</h1>
+      {error && (
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+          <AlertDescription>Xatolik: {error.message}</AlertDescription>
+        </Alert>
+      )}
+      {books && books.length > 0 ? (
+        <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {books.map((book: Book) => (
+            <div
+              key={book.id}
+              className="p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+            >
+              <div>
+                <h2 className="text-lg font-semibold">{book.title}</h2>
+                <p className="text-gray-600">Muallif: {book.author}</p>
+                <p className="text-gray-500 truncate">
+                  {book.description || "Tavsif yo‘q"}
+                </p>
+              </div>
+              <div className="mt-4">
+                <Button asChild variant="outline">
+                  <Link href={`/book/${book.id}`}>Batafsil</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="w-full max-w-4xl text-center">
+          <p className="text-gray-600">Hozircha kitoblar yo‘q.</p>
+        </div>
       )}
     </main>
   );
 }
 
+export const dynamic = "force-dynamic";
