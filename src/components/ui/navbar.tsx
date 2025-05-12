@@ -3,12 +3,13 @@
 "use client";
 
 import { supabase } from "@/lib/supabaseClient";
+import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Navbar() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     async function checkUser() {
