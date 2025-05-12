@@ -20,6 +20,10 @@ interface Book {
   created_at: string;
 }
 
+interface BooksPageProps {
+  searchParams: Promise<{ search?: string }>;
+}
+
 async function deleteBook(bookId: string) {
   "use server";
   const supabase = createServerActionClient({ cookies });
@@ -30,11 +34,9 @@ async function deleteBook(bookId: string) {
   revalidatePath("/books");
 }
 
-export default async function BooksPage({
-  searchParams,
-}: {
-  searchParams: { search?: string };
-}) {
+export default async function BooksPage({ searchParams }: BooksPageProps) {
+  const { search } = await searchParams;
+
   const supabase = createServerActionClient({ cookies });
   const {
     data: { user },
@@ -50,8 +52,8 @@ export default async function BooksPage({
     query = query.eq("created_by", null); // Foydalanuvchi login qilmagan bo'lsa, hech qanday kitob ko'rsatilmaydi
   }
 
-  if (searchParams.search) {
-    const searchTerm = searchParams.search;
+  if (search) {
+    const searchTerm = search;
     query = query.or(
       `title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`
     );
