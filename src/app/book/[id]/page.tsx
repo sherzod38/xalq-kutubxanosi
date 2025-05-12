@@ -1,8 +1,9 @@
 
-
 // src/app/book/[id]/page.tsx
 import { supabase } from "@/lib/supabaseClient";
 import { notFound } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Book {
   id: string;
@@ -17,14 +18,16 @@ interface Book {
 }
 
 interface BookPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function BookPage({ params }: BookPageProps) {
+  const { id } = await params;
+
   const { data: book, error } = await supabase
     .from("books")
     .select("id, title, author, description, phone_number, region, district, created_by, created_at")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !book) {
@@ -54,6 +57,9 @@ export default async function BookPage({ params }: BookPageProps) {
             <strong>Tuman:</strong> {typedBook.district || "Yo‘q"}
           </p>
         </div>
+        <Button asChild variant="link" className="mt-4">
+          <Link href="/books">Orqaga</Link>
+        </Button>
       </div>
     </main>
   );
