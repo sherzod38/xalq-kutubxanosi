@@ -19,7 +19,6 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // localStorage dan xabarni o‘qish
   useEffect(() => {
     const message = localStorage.getItem("authMessage");
     if (message) {
@@ -28,13 +27,11 @@ const LoginPage: React.FC = () => {
     }
   }, []);
 
-  // Email validatsiyasi
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Kirish funksiyasi
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -71,7 +68,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // Ro‘yxatdan o‘tish funksiyasi
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -107,8 +103,8 @@ const LoginPage: React.FC = () => {
       });
 
       if (error) {
-        if (error.message.includes("Email signups are disabled")) {
-          setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan. Administrator bilan bog‘laning.");
+        if (error.message.includes("Database error saving new user")) {
+          setError("Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi. Administrator bilan bog‘laning.");
         } else {
           setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
         }
