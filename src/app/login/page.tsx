@@ -107,29 +107,19 @@ const LoginPage: React.FC = () => {
       });
 
       if (error) {
-        setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
-      } else {
-        // Foydalanuvchi auth.users da yaratilganligini tekshirish
-        if (data.user) {
-          // public.users jadvalida foydalanuvchi saqlanganligini tekshirish
-          const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("id, email")
-            .eq("id", data.user.id)
-            .single();
-
-          if (userError || !userData) {
-            setError("Foydalanuvchi ma’lumotlari saqlanmadi. Qayta urinib ko‘ring.");
-          } else {
-            setSuccess(
-              "Siz muvaffaqiyatli ro‘yxatdan o‘tdingiz! Emailingizni tasdiqlang."
-            );
-            setEmail("");
-            setPassword("");
-          }
+        if (error.message.includes("Email signups are disabled")) {
+          setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan. Administrator bilan bog‘laning.");
         } else {
-          setError("Ro‘yxatdan o‘tish jarayonida xatolik yuz berdi.");
+          setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
         }
+      } else if (data.user) {
+        setSuccess(
+          "Siz muvaffaqiyatli ro‘yxatdan o‘tdingiz! Emailingizni tasdiqlang."
+        );
+        setEmail("");
+        setPassword("");
+      } else {
+        setError("Ro‘yxatdan o‘tish jarayonida xatolik yuz berdi.");
       }
     } catch {
       setError("Noma’lum xatolik yuz berdi.");
