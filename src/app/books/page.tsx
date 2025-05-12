@@ -1,7 +1,6 @@
 
 // src/app/books/page.tsx
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
@@ -20,10 +19,6 @@ interface Book {
   created_at: string;
 }
 
-interface BooksPageProps {
-  searchParams: Promise<{ search?: string }>;
-}
-
 async function deleteBook(bookId: string) {
   "use server";
   const supabase = createServerActionClient({ cookies });
@@ -34,51 +29,35 @@ async function deleteBook(bookId: string) {
   revalidatePath("/books");
 }
 
-export default async function BooksPage({ searchParams }: BooksPageProps) {
-  const { search } = await searchParams;
-
+export default async function BooksPage() {
   const supabase = createServerActionClient({ cookies });
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
+  let books: Book[] = [];
+  let error: any = null;
+
+  if (user) {
+    const { data, error: queryError } = await supabase
+      .from("books")
+      .select("id, title, author, description, phone_number, region, district, created_by, created_at")
+      .eq("created_by", user.id);
+
+    if (queryError) {
+      error = queryError;
+    } else {
+      books = data || [];
+    }
+  }
+
   if (authError) {
     console.error("Autentifikatsiya xatosi:", authError.message);
   }
 
-  let query = supabase
-    .from("books")
-    .select("id, title, author, description, phone_number, region, district, created_by, created_at");
-
-  if (user) {
-    query = query.eq("created_by", user.id);
-  } else {
-    query = query.eq("created_by", null); // Foydalanuvchi login qilmagan bo'lsa, hech qanday kitob ko'rsatilmaydi
-  }
-
-  if (search) {
-    const searchTerm = search;
-    query = query.or(
-      `title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`
-    );
-  }
-
-  const { data: books, error } = await query;
-
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <div className="w-full max-w-4xl mb-6">
-        <form className="flex gap-2">
-          <Input
-            type="text"
-            name="search"
-            placeholder="Kitob nomi yoki muallif bo‘yicha qidiring"
-            className="flex-1"
-          />
-          <Button type="submit">Qidirish</Button>
-        </form>
-      </div>
       {error && (
         <Alert variant="destructive" className="w-full max-w-4xl mb-6">
           <AlertDescription>Xatolik: {error.message}</AlertDescription>
@@ -89,7 +68,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           <AlertDescription>Autentifikatsiya xatosi: Iltimos, qayta kiring.</AlertDescription>
         </Alert>
       )}
-      {books && books.length > 0 ? (
+      {books.length > 0 ? (
         <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {books.map((book: Book) => (
             <div
