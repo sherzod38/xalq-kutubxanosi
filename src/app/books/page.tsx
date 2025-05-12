@@ -1,13 +1,13 @@
 
 // src/app/books/page.tsx
-"use client";
-
-import React, { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 interface Book {
   id: string;
@@ -21,75 +21,106 @@ interface Book {
   created_at: string;
 }
 
-const BooksList: React.FC = () => {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [error, setError] = useState("");
-  const searchParams = useSearchParams();
-  const searchTerm = searchParams.get("search") || "";
+async function deleteBook(bookId: string) {
+  "use server";
+  const supabase = createServerActionClient({ cookies });
+  const { error } = await supabase.from("books").delete().eq("id", bookId);
+  if (error) {
+    throw new Error("Kitob o‘chirishda xatolik: " + error.message);
+  }
+  revalidatePath("/books");
+}
 
-  useEffect(() => {
-    async function fetchBooks() {
-      let query = supabase
-        .from("books")
-        .select("id, title, author, description, phone_number, region, district, created_by, created_at");
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
+  const supabase = createServerActionClient({ cookies });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`);
-      }
+  let query = supabase
+    .from("books")
+    .select("id, title, author, description, phone_number, region, district, created_by, created_at");
 
-      const { data, error } = await query;
+  if (user) {
+    query = query.eq("created_by", user.id);
+  } else {
+    query = query.eq("created_by", null); // Foydalanuvchi login qilmagan bo'lsa, hech qanday kitob ko'rsatilmaydi
+  }
 
-      if (error) {
-        setError("Kitoblarni olishda xatolik: " + error.message);
-      } else {
-        setBooks(data || []);
-      }
-    }
-    fetchBooks();
-  }, [searchTerm]);
+  if (searchParams.search) {
+    const searchTerm = searchParams.search;
+    query = query.or(
+      `title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`
+    );
+  }
+
+  const { data: books, error } = await query;
 
   return (
-    <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">Kitoblar ro‘yxati</h1>
+    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
+      <div className="w-full max-w-4xl mb-6">
+        <form className="flex gap-2">
+          <Input
+            type="text"
+            name="search"
+            placeholder="Kitob nomi yoki muallif bo‘yicha qidiring"
+            className="flex-1"
+          />
+          <Button type="submit">Qidirish</Button>
+        </form>
+      </div>
       {error && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertTitle>Xatolik</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+          <AlertDescription>Xatolik: {error.message}</AlertDescription>
         </Alert>
       )}
-      {books.length === 0 ? (
-        <p className="text-center">Hozircha kitoblar yo‘q.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {books.map((book) => (
-            <div key={book.id} className="p-4 bg-gray-50 rounded-lg flex flex-col gap-2">
-              <h3 className="text-lg font-semibold">{book.title}</h3>
-              <p className="text-gray-700">Muallif: {book.author}</p>
-              <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
-              <p className="text-gray-600">Telefon: {book.phone_number || "Yo‘q"}</p>
-              <p className="text-gray-600">Viloyat: {book.region || "Yo‘q"}</p>
-              <p className="text-gray-600">Tuman: {book.district || "Yo‘q"}</p>
-              <Button asChild variant="link" className="mt-2">
-                <Link href={`/book/${book.id}`}>Batafsil</Link>
-              </Button>
+      {books && books.length > 0 ? (
+        <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {books.map((book: Book) => (
+            <div
+              key={book.id}
+              className="p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+            >
+              <div>
+                <h2 className="text-lg font-semibold">{book.title}</h2>
+                <p className="text-gray-600">Muallif: {book.author}</p>
+                <p className="text-gray-500 truncate">
+                  {book.description || "Tavsif yo‘q"}
+                </p>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button asChild variant="outline">
+                  <Link href={`/book/${book.id}`}>Batafsil</Link>
+                </Button>
+                <form
+                  action={async () => {
+                    "use server";
+                    try {
+                      await deleteBook(book.id);
+                    } catch (error) {
+                      console.error(error);
+                    }
+                  }}
+                >
+                  <Button type="submit" variant="destructive">
+                    O‘chirish
+                  </Button>
+                </form>
+              </div>
             </div>
           ))}
         </div>
+      ) : (
+        <div className="w-full max-w-4xl text-center">
+          <p className="text-gray-600">Siz hali kitob qo‘shmaganisiz.</p>
+        </div>
       )}
-    </div>
-  );
-};
-
-const BooksPage: React.FC = () => {
-  return (
-    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <Suspense fallback={<p className="text-center">Yuklanmoqda...</p>}>
-        <BooksList />
-      </Suspense>
     </main>
   );
-};
-
-export default BooksPage;
+}
 
 export const dynamic = "force-dynamic";
