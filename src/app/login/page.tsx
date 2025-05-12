@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -110,9 +110,27 @@ const LoginPage: React.FC = () => {
       if (error) {
         setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
       } else {
-        setSuccess("Ro‘yxatdan o‘tish muvaffaqiyatli! Emailingizni tasdiqlang.");
-        setEmail("");
-        setPassword("");
+        // Foydalanuvchi auth.users da yaratilganligini tekshirish
+        if (data.user) {
+          // public.users jadvalida foydalanuvchi saqlanganligini tekshirish
+          const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("id, email")
+            .eq("id", data.user.id)
+            .single();
+
+          if (userError || !userData) {
+            setError("Foydalanuvchi ma’lumotlari saqlanmadi. Qayta urinib ko‘ring.");
+          } else {
+            setSuccess(
+              "Siz muvaffaqiyatli ro‘yxatdan o‘tdingiz! Emailingizni tasdiqlang."
+            );
+            setEmail("");
+            setPassword("");
+          }
+        } else {
+          setError("Ro‘yxatdan o‘tish jarayonida xatolik yuz berdi.");
+        }
       }
     } catch {
       setError("Noma’lum xatolik yuz berdi.");
@@ -124,15 +142,13 @@ const LoginPage: React.FC = () => {
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          {activeTab === "login" ? "Kirish" : "Ro‘yxatdan o‘tish"}
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Kirish yoki Ro‘yxatdan o‘tish</h1>
         <Tabs defaultValue="login" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login" activeTab={activeTab} onTabChange={setActiveTab}>Kirish</TabsTrigger>
-            <TabsTrigger value="signup" activeTab={activeTab} onTabChange={setActiveTab}>Ro‘yxatdan o‘tish</TabsTrigger>
+            <TabsTrigger value="login">Kirish</TabsTrigger>
+            <TabsTrigger value="signup">Ro‘yxatdan o‘tish</TabsTrigger>
           </TabsList>
-          <TabsContent value="login" activeTab={activeTab}>
+          <TabsContent value="login">
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -171,7 +187,7 @@ const LoginPage: React.FC = () => {
               </Button>
             </form>
           </TabsContent>
-          <TabsContent value="signup" activeTab={activeTab}>
+          <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div>
                 <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 mb-1">
