@@ -87,6 +87,43 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  // Kitob o'chirish
+  const handleDeleteBook = async (bookId: string) => {
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Foydalanuvchi autentifikatsiya qilinmagan.");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from("books")
+        .delete()
+        .eq("id", bookId)
+        .eq("created_by", user.id);
+
+      if (error) {
+        setError("Kitob o‘chirishda xatolik: " + error.message);
+      } else {
+        setSuccess("Kitob muvaffaqiyatli o‘chirildi!");
+        // Kitoblar ro'yxatini yangilash
+        const { data } = await supabase
+          .from("books")
+          .select("id, title, author, description, created_by, created_at");
+        setBooks(data || []);
+      }
+    } catch {
+      setError("Noma’lum xatolik yuz berdi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md">
@@ -153,16 +190,25 @@ const AdminPage: React.FC = () => {
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
-        <h2 className="text-xl font-bold mt-8 mb-4">Kitoblar ro‘yxati</h2>
+        <h2 className="text-xl font-bold mt-8 mb-4">Sizning kitoblaringiz</h2>
         {books.length === 0 ? (
           <p>Hozircha kitoblar yo‘q.</p>
         ) : (
           <ul className="space-y-4">
             {books.map((book) => (
-              <li key={book.id} className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold">{book.title}</h3>
-                <p className="text-gray-700">Muallif: {book.author}</p>
-                <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
+              <li key={book.id} className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold">{book.title}</h3>
+                  <p className="text-gray-700">Muallif: {book.author}</p>
+                  <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDeleteBook(book.id)}
+                  disabled={loading}
+                >
+                  O‘chirish
+                </Button>
               </li>
             ))}
           </ul>
