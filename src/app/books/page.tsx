@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import type { PostgrestError } from "@supabase/supabase-js";
 
 interface Book {
   id: string;
@@ -37,7 +38,7 @@ export default async function BooksPage() {
   } = await supabase.auth.getUser();
 
   let books: Book[] = [];
-  let error: any = null;
+  let error: PostgrestError | null = null;
 
   if (user) {
     const { data, error: queryError } = await supabase
