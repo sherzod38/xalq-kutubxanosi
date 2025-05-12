@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-// import Navbar from "@/components/ui/navbar";
 
 interface Book {
   id: number;
@@ -14,10 +13,10 @@ interface Book {
   description: string;
   image_url: string | null;
 }
-
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     async function fetchBooks() {
