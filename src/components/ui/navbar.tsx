@@ -35,15 +35,13 @@ export default function Navbar() {
           <Button asChild variant="ghost">
             <Link href="/books">Kitoblar</Link>
           </Button>
+          <Button asChild variant="ghost">
+            <Link href="/admin">Kitob qo‘shish</Link>
+          </Button>
           {user ? (
-            <>
-              <Button asChild>
-                <Link href="/admin">Kitob qo‘shish</Link>
-              </Button>
-              <Button variant="outline" onClick={handleSignOut}>
-                Chiqish
-              </Button>
-            </>
+            <Button variant="outline" onClick={handleSignOut}>
+              Chiqish
+            </Button>
           ) : (
             <Button asChild variant="outline">
               <Link href="/login">Kirish</Link>
