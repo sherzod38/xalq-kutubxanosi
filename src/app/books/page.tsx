@@ -11,6 +11,9 @@ interface Book {
   title: string;
   author: string;
   description: string | null;
+  phone_number: string | null;
+  region: string | null;
+  district: string | null;
   created_by: string | null;
   created_at: string;
 }
@@ -23,7 +26,7 @@ const BooksPage: React.FC = () => {
     async function fetchBooks() {
       const { data, error } = await supabase
         .from("books")
-        .select("id, title, author, description, created_by, created_at");
+        .select("id, title, author, description, phone_number, region, district, created_by, created_at");
 
       if (error) {
         setError("Kitoblarni olishda xatolik: " + error.message);
@@ -53,6 +56,9 @@ const BooksPage: React.FC = () => {
                 <h3 className="text-lg font-semibold">{book.title}</h3>
                 <p className="text-gray-700">Muallif: {book.author}</p>
                 <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
+                <p className="text-gray-600">Telefon: {book.phone_number || "Yo‘q"}</p>
+                <p className="text-gray-600">Viloyat: {book.region || "Yo‘q"}</p>
+                <p className="text-gray-600">Tuman: {book.district || "Yo‘q"}</p>
               </div>
             ))}
           </div>

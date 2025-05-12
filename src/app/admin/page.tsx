@@ -13,6 +13,9 @@ interface Book {
   title: string;
   author: string;
   description: string | null;
+  phone_number: string | null;
+  region: string | null;
+  district: string | null;
   created_by: string | null;
   created_at: string;
 }
@@ -21,6 +24,9 @@ const AdminPage: React.FC = () => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [region, setRegion] = useState("");
+  const [district, setDistrict] = useState("");
   const [books, setBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -30,7 +36,7 @@ const AdminPage: React.FC = () => {
     async function fetchBooks() {
       const { data, error } = await supabase
         .from("books")
-        .select("id, title, author, description, created_by, created_at");
+        .select("id, title, author, description, phone_number, region, district, created_by, created_at");
 
       if (error) {
         setError("Kitoblarni olishda xatolik: " + error.message);
@@ -64,7 +70,15 @@ const AdminPage: React.FC = () => {
 
       const { error } = await supabase
         .from("books")
-        .insert([{ title, author, description, created_by: user.id }]);
+        .insert([{
+          title,
+          author,
+          description,
+          phone_number: phoneNumber || null,
+          region: region || null,
+          district: district || null,
+          created_by: user.id
+        }]);
 
       if (error) {
         setError("Kitob qo‘shishda xatolik: " + error.message);
@@ -73,9 +87,12 @@ const AdminPage: React.FC = () => {
         setTitle("");
         setAuthor("");
         setDescription("");
+        setPhoneNumber("");
+        setRegion("");
+        setDistrict("");
         const { data } = await supabase
           .from("books")
-          .select("id, title, author, description, created_by, created_at");
+          .select("id, title, author, description, phone_number, region, district, created_by, created_at");
         setBooks(data || []);
       }
     } catch {
@@ -111,7 +128,7 @@ const AdminPage: React.FC = () => {
         setSuccess("Kitob muvaffaqiyatli o‘chirildi!");
         const { data } = await supabase
           .from("books")
-          .select("id, title, author, description, created_by, created_at");
+          .select("id, title, author, description, phone_number, region, district, created_by, created_at");
         setBooks(data || []);
       }
     } catch {
@@ -170,6 +187,48 @@ const AdminPage: React.FC = () => {
               className="w-full"
             />
           </div>
+          <div>
+            <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
+              Telefon raqami
+            </label>
+            <Input
+              id="phone_number"
+              type="tel"
+              placeholder="+998901234567"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
+              Viloyat
+            </label>
+            <Input
+              id="region"
+              type="text"
+              placeholder="Masalan, Toshkent"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
+              Tuman
+            </label>
+            <Input
+              id="district"
+              type="text"
+              placeholder="Masalan, Chilanzor"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              disabled={loading}
+              className="w-full"
+            />
+          </div>
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700"
@@ -201,6 +260,9 @@ const AdminPage: React.FC = () => {
                   <h3 className="text-lg font-semibold">{book.title}</h3>
                   <p className="text-gray-700">Muallif: {book.author}</p>
                   <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
+                  <p className="text-gray-600">Telefon: {book.phone_number || "Yo‘q"}</p>
+                  <p className="text-gray-600">Viloyat: {book.region || "Yo‘q"}</p>
+                  <p className="text-gray-600">Tuman: {book.district || "Yo‘q"}</p>
                 </div>
                 <Button
                   variant="destructive"
