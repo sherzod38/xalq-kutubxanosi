@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useSearchParams } from "next/navigation";
 
 interface Book {
   id: string;
@@ -21,12 +22,21 @@ interface Book {
 const BooksPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const searchTerm = searchParams.get("search") || "";
 
   useEffect(() => {
     async function fetchBooks() {
-      const { data, error } = await supabase
+      let query = supabase
         .from("books")
         .select("id, title, author, description, phone_number, region, district, created_by, created_at");
+
+      if (searchTerm) {
+        query = query
+          .or(`title.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         setError("Kitoblarni olishda xatolik: " + error.message);
@@ -35,7 +45,7 @@ const BooksPage: React.FC = () => {
       }
     }
     fetchBooks();
-  }, []);
+  }, [searchTerm]);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
