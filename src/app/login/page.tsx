@@ -17,7 +17,6 @@ const LoginPage: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("login");
   const router = useRouter();
 
   // localStorage dan xabarni o‘qish
@@ -143,7 +142,7 @@ const LoginPage: React.FC = () => {
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Kirish yoki Ro‘yxatdan o‘tish</h1>
-        <Tabs defaultValue="login" onValueChange={setActiveTab}>
+        <Tabs defaultValue="login">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Kirish</TabsTrigger>
             <TabsTrigger value="signup">Ro‘yxatdan o‘tish</TabsTrigger>
