@@ -27,11 +27,11 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
         <Link href="/" className="text-black text-lg font-bold">
           Xalq Kutubxonasi
         </Link>
-        <div className="space-x-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <Button asChild variant="ghost">
             <Link href="/books">Kitoblar</Link>
           </Button>

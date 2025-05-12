@@ -26,7 +26,6 @@ const AdminPage: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Kitoblarni olish
   useEffect(() => {
     async function fetchBooks() {
       const { data, error } = await supabase
@@ -42,7 +41,6 @@ const AdminPage: React.FC = () => {
     fetchBooks();
   }, []);
 
-  // Kitob qo'shish
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -58,7 +56,8 @@ const AdminPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setError("Foydalanuvchi autentifikatsiya qilinmagan.");
+        setError("Iltimos, tizimga kiring.");
+        window.location.href = "/login";
         setLoading(false);
         return;
       }
@@ -74,7 +73,6 @@ const AdminPage: React.FC = () => {
         setTitle("");
         setAuthor("");
         setDescription("");
-        // Kitoblar ro'yxatini yangilash
         const { data } = await supabase
           .from("books")
           .select("id, title, author, description, created_by, created_at");
@@ -87,7 +85,6 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // Kitob o'chirish
   const handleDeleteBook = async (bookId: string) => {
     setError("");
     setSuccess("");
@@ -96,7 +93,8 @@ const AdminPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setError("Foydalanuvchi autentifikatsiya qilinmagan.");
+        setError("Iltimos, tizimga kiring.");
+        window.location.href = "/login";
         setLoading(false);
         return;
       }
@@ -111,7 +109,6 @@ const AdminPage: React.FC = () => {
         setError("Kitob o‘chirishda xatolik: " + error.message);
       } else {
         setSuccess("Kitob muvaffaqiyatli o‘chirildi!");
-        // Kitoblar ro'yxatini yangilash
         const { data } = await supabase
           .from("books")
           .select("id, title, author, description, created_by, created_at");
@@ -126,7 +123,7 @@ const AdminPage: React.FC = () => {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <div className="w-full max-w-2xl p-8 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Kitob qo‘shish</h1>
         <form onSubmit={handleAddBook} className="space-y-4">
           <div>
@@ -141,6 +138,7 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setTitle(e.target.value)}
               required
               disabled={loading}
+              className="w-full"
             />
           </div>
           <div>
@@ -155,6 +153,7 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setAuthor(e.target.value)}
               required
               disabled={loading}
+              className="w-full"
             />
           </div>
           <div>
@@ -168,6 +167,7 @@ const AdminPage: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={loading}
+              className="w-full"
             />
           </div>
           <Button
@@ -190,13 +190,13 @@ const AdminPage: React.FC = () => {
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
-        <h2 className="text-xl font-bold mt-8 mb-4">Sizning kitoblaringiz</h2>
+        <h2 className="text-xl font-bold mt-8 mb-4 text-center">Sizning kitoblaringiz</h2>
         {books.length === 0 ? (
-          <p>Hozircha kitoblar yo‘q.</p>
+          <p className="text-center">Hozircha kitoblar yo‘q.</p>
         ) : (
-          <ul className="space-y-4">
+          <div className="space-y-4">
             {books.map((book) => (
-              <li key={book.id} className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+              <div key={book.id} className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div>
                   <h3 className="text-lg font-semibold">{book.title}</h3>
                   <p className="text-gray-700">Muallif: {book.author}</p>
@@ -206,12 +206,13 @@ const AdminPage: React.FC = () => {
                   variant="destructive"
                   onClick={() => handleDeleteBook(book.id)}
                   disabled={loading}
+                  className="w-full sm:w-auto"
                 >
                   O‘chirish
                 </Button>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </main>

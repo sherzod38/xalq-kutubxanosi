@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Kirish yoki Ro‘yxatdan o‘tish</h1>
         <Tabs defaultValue="login">
           <TabsList className="grid w-full grid-cols-2">
@@ -151,6 +151,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="w-full"
                 />
               </div>
               <div>
@@ -165,6 +166,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  className="w-full"
                 />
               </div>
               <Button
@@ -190,6 +192,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  className="w-full"
                 />
               </div>
               <div>
@@ -204,6 +207,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  className="w-full"
                 />
               </div>
               <Button
