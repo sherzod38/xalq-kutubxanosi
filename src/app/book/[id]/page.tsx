@@ -58,7 +58,7 @@ export default async function BookPage({ params }: BookPageProps) {
           </p>
         </div>
         <Button asChild variant="link" className="mt-4">
-          <Link href="/books">Orqaga</Link>
+          <Link href="/">Bosh sahifaga qaytish</Link>
         </Button>
       </div>
     </main>
