@@ -2,283 +2,164 @@
 // src/app/admin/page.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string | null;
-  phone_number: string | null;
-  region: string | null;
-  district: string | null;
-  created_by: string | null;
-  created_at: string;
-}
-
-const AdminPage: React.FC = () => {
+export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [region, setRegion] = useState("");
   const [district, setDistrict] = useState("");
-  const [books, setBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    async function fetchBooks() {
-      const { data, error } = await supabase
-        .from("books")
-        .select("id, title, author, description, phone_number, region, district, created_by, created_at");
-
-      if (error) {
-        setError("Kitoblarni olishda xatolik: " + error.message);
-      } else {
-        setBooks(data || []);
-      }
-    }
-    fetchBooks();
-  }, []);
-
-  const handleAddBook = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setLoading(true);
 
-    if (!title || !author) {
-      setError("Kitob nomi va muallifi to‘ldirilishi shart.");
-      setLoading(false);
+    // Majburiy maydonlarni tekshirish
+    if (!title || !author || !description || !phoneNumber || !region || !district) {
+      setError("Barcha maydonlarni to‘ldiring!");
       return;
     }
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Iltimos, tizimga kiring.");
-        window.location.href = "/login";
-        setLoading(false);
-        return;
-      }
+    const { error } = await supabase.from("books").insert([
+      {
+        title,
+        author,
+        description,
+        phone_number: phoneNumber,
+        region,
+        district,
+        created_by: (await supabase.auth.getUser()).data.user?.id,
+      },
+    ]);
 
-      const { error } = await supabase
-        .from("books")
-        .insert([{
-          title,
-          author,
-          description,
-          phone_number: phoneNumber || null,
-          region: region || null,
-          district: district || null,
-          created_by: user.id
-        }]);
-
-      if (error) {
-        setError("Kitob qo‘shishda xatolik: " + error.message);
-      } else {
-        setSuccess("Kitob muvaffaqiyatli qo‘shildi!");
-        setTitle("");
-        setAuthor("");
-        setDescription("");
-        setPhoneNumber("");
-        setRegion("");
-        setDistrict("");
-        const { data } = await supabase
-          .from("books")
-          .select("id, title, author, description, phone_number, region, district, created_by, created_at");
-        setBooks(data || []);
-      }
-    } catch {
-      setError("Noma’lum xatolik yuz berdi.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteBook = async (bookId: string) => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setError("Iltimos, tizimga kiring.");
-        window.location.href = "/login";
-        setLoading(false);
-        return;
-      }
-
-      const { error } = await supabase
-        .from("books")
-        .delete()
-        .eq("id", bookId)
-        .eq("created_by", user.id);
-
-      if (error) {
-        setError("Kitob o‘chirishda xatolik: " + error.message);
-      } else {
-        setSuccess("Kitob muvaffaqiyatli o‘chirildi!");
-        const { data } = await supabase
-          .from("books")
-          .select("id, title, author, description, phone_number, region, district, created_by, created_at");
-        setBooks(data || []);
-      }
-    } catch {
-      setError("Noma’lum xatolik yuz berdi.");
-    } finally {
-      setLoading(false);
+    if (error) {
+      setError("Kitob qo‘shishda xatolik: " + error.message);
+    } else {
+      setSuccess("Kitob muvaffaqiyatli qo‘shildi!");
+      setTitle("");
+      setAuthor("");
+      setDescription("");
+      setPhoneNumber("");
+      setRegion("");
+      setDistrict("");
     }
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Kitob qo‘shish</h1>
-        <form onSubmit={handleAddBook} className="space-y-4">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Kitob nomi
-            </label>
-            <Input
-              id="title"
-              type="text"
-              placeholder="Kitob nomini kiriting"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-              Muallif
-            </label>
-            <Input
-              id="author"
-              type="text"
-              placeholder="Muallif nomini kiriting"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              required
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Tavsif
-            </label>
-            <Input
-              id="description"
-              type="text"
-              placeholder="Kitob haqida qisqacha ma’lumot"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-              Telefon raqami
-            </label>
-            <Input
-              id="phone_number"
-              type="tel"
-              placeholder="+998901234567"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
-              Viloyat
-            </label>
-            <Input
-              id="region"
-              type="text"
-              placeholder="Masalan, Toshkent"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
-              Tuman
-            </label>
-            <Input
-              id="district"
-              type="text"
-              placeholder="Masalan, Chilanzor"
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              disabled={loading}
-              className="w-full"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700"
-            disabled={loading}
-          >
-            {loading ? "Qo‘shilmoqda..." : "Kitob qo‘shish"}
-          </Button>
-        </form>
         {error && (
-          <Alert variant="destructive" className="mt-4">
+          <Alert variant="destructive" className="mb-4">
             <AlertTitle>Xatolik</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         {success && (
-          <Alert variant="default" className="mt-4">
+          <Alert variant="default" className="mb-4">
             <AlertTitle>Muvaffaqiyat</AlertTitle>
             <AlertDescription>{success}</AlertDescription>
           </Alert>
         )}
-        <h2 className="text-xl font-bold mt-8 mb-4 text-center">Sizning kitoblaringiz</h2>
-        {books.length === 0 ? (
-          <p className="text-center">Hozircha kitoblar yo‘q.</p>
-        ) : (
-          <div className="space-y-4">
-            {books.map((book) => (
-              <div key={book.id} className="p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold">{book.title}</h3>
-                  <p className="text-gray-700">Muallif: {book.author}</p>
-                  <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
-                  <p className="text-gray-600">Telefon: {book.phone_number || "Yo‘q"}</p>
-                  <p className="text-gray-600">Viloyat: {book.region || "Yo‘q"}</p>
-                  <p className="text-gray-600">Tuman: {book.district || "Yo‘q"}</p>
-                </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDeleteBook(book.id)}
-                  disabled={loading}
-                  className="w-full sm:w-auto"
-                >
-                  O‘chirish
-                </Button>
-              </div>
-            ))}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+              Sarlavha
+            </label>
+            <Input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              placeholder="Kitob sarlavhasi"
+              className="mt-1"
+            />
           </div>
-        )}
+          <div>
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700">
+              Muallif
+            </label>
+            <Input
+              id="author"
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              required
+              placeholder="Kitob muallifi"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+              Tavsif
+            </label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              placeholder="Kitob haqida qisqacha"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700">
+              Telefon raqami
+            </label>
+            <Input
+              id="phone_number"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+              placeholder="+998901234567"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="region" className="block text-sm font-medium text-gray-700">
+              Viloyat
+            </label>
+            <Input
+              id="region"
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              required
+              placeholder="Viloyat nomi"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="district" className="block text-sm font-medium text-gray-700">
+              Tuman
+            </label>
+            <Input
+              id="district"
+              type="text"
+              value={district}
+              onChange={(e) => setDistrict(e.target.value)}
+              required
+              placeholder="Tuman nomi"
+              className="mt-1"
+            />
+          </div>
+          <Button type="submit" className="w-full">
+            Kitob qo‘shish
+          </Button>
+        </form>
       </div>
     </main>
   );
-};
-
-export default AdminPage;
+}
