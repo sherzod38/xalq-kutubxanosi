@@ -6,6 +6,8 @@ import React, { useState, useEffect, Suspense } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Book {
   id: string;
@@ -60,13 +62,16 @@ const BooksList: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {books.map((book) => (
-            <div key={book.id} className="p-4 bg-gray-50 rounded-lg">
+            <div key={book.id} className="p-4 bg-gray-50 rounded-lg flex flex-col gap-2">
               <h3 className="text-lg font-semibold">{book.title}</h3>
               <p className="text-gray-700">Muallif: {book.author}</p>
               <p className="text-gray-600">{book.description || "Tavsif yo‘q"}</p>
               <p className="text-gray-600">Telefon: {book.phone_number || "Yo‘q"}</p>
               <p className="text-gray-600">Viloyat: {book.region || "Yo‘q"}</p>
               <p className="text-gray-600">Tuman: {book.district || "Yo‘q"}</p>
+              <Button asChild variant="link" className="mt-2">
+                <Link href={`/book/${book.id}`}>Batafsil</Link>
+              </Button>
             </div>
           ))}
         </div>
@@ -87,5 +92,4 @@ const BooksPage: React.FC = () => {
 
 export default BooksPage;
 
-// Sahifani dinamik qilish uchun
 export const dynamic = "force-dynamic";
