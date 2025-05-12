@@ -104,7 +104,11 @@ const LoginPage: React.FC = () => {
 
       if (error) {
         if (error.message.includes("Database error saving new user")) {
-          setError("Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi. Administrator bilan bog‘laning.");
+          setError(
+            "Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi. Iltimos, qayta urinib ko‘ring yoki administrator bilan bog‘laning."
+          );
+        } else if (error.message.includes("Email signups are disabled")) {
+          setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan. Administrator bilan bog‘laning.");
         } else {
           setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
         }
