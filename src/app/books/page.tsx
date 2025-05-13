@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation"; // redirect import qo'shildi
+import { redirect } from "next/navigation";
 import type { PostgrestError } from "@supabase/supabase-js";
 
 interface Book {
@@ -20,7 +20,7 @@ interface Book {
   created_at: string;
 }
 
-async function deleteBook(bookId: string) {
+export async function deleteBook(bookId: string) {
   "use server";
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("books").delete().eq("id", bookId);
@@ -87,16 +87,7 @@ export default async function BooksPage() {
                 <Button asChild variant="outline" className="transition-none">
                   <Link href={`/book/${book.id}`}>Batafsil</Link>
                 </Button>
-                <form
-                  action={async () => {
-                    "use server";
-                    try {
-                      await deleteBook(book.id);
-                    } catch (error) {
-                      console.error(error);
-                    }
-                  }}
-                >
+                <form action={deleteBook.bind(null, book.id)}>
                   <Button type="submit" variant="destructive" className="transition-none">
                     O‘chirish
                   </Button>
