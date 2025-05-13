@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { PostgrestError } from "@supabase/supabase-js";
+import { deleteBook } from "./actions"; // deleteBook ni import qilish
 
 interface Book {
   id: string;
@@ -18,16 +18,6 @@ interface Book {
   district: string | null;
   created_by: string | null;
   created_at: string;
-}
-
-export async function deleteBook(bookId: string) {
-  "use server";
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("books").delete().eq("id", bookId);
-  if (error) {
-    throw new Error("Kitob o‘chirishda xatolik: " + error.message);
-  }
-  revalidatePath("/books");
 }
 
 export default async function BooksPage() {
