@@ -17,13 +17,13 @@ interface Book {
   created_at: string;
 }
 
-// Updated type definition to match Next.js 15 requirements
-type PageProps = {
+// Next.js 15 uchun yangilangan PageProps tipi
+interface PageProps {
   params: {
     id: string;
   };
   searchParams?: Record<string, string | string[] | undefined>;
-};
+}
 
 export default async function BookPage({ params }: PageProps) {
   const { id } = params;
