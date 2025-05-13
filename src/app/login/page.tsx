@@ -25,7 +25,16 @@ const LoginPage: React.FC = () => {
       setAuthMessage(message);
       localStorage.removeItem("authMessage");
     }
-  }, []);
+
+    // Sessiyani tekshirish
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/admin");
+      }
+    };
+    checkSession();
+  }, [router]);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,15 +60,18 @@ const LoginPage: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         setError("Kirishda xatolik: " + error.message);
-      } else {
+      } else if (data.session) {
+        setSuccess("Muvaffaqiyatli kirish!");
         router.push("/admin");
+      } else {
+        setError("Sessiya yaratilmadi. Iltimos, qayta urinib ko‘ring.");
       }
     } catch {
       setError("Noma’lum xatolik yuz berdi.");
@@ -105,16 +117,16 @@ const LoginPage: React.FC = () => {
       if (error) {
         if (error.message.includes("Database error saving new user")) {
           setError(
-            "Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi. Iltimos, qayta urinib ko‘ring yoki administrator bilan bog‘laning."
+            "Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi."
           );
         } else if (error.message.includes("Email signups are disabled")) {
-          setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan. Administrator bilan bog‘laning.");
+          setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan.");
         } else {
           setError("Ro‘yxatdan o‘tishda xatolik: " + error.message);
         }
       } else if (data.user) {
         setSuccess(
-          "Siz muvaffaqiyatli ro‘yxatdan o‘tdingiz! Emailingizni tasdiqlang."
+          "Ro‘yxatdan o‘tish muvaffaqiyatli! Emailingizni tasdiqlang va keyin kiring."
         );
         setEmail("");
         setPassword("");
