@@ -9,18 +9,19 @@ import { addBook } from "./actions";
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
   
-  // Sessiyani yangilash
-  const { data: { session } } = await supabase.auth.getSession();
+  // Sessiyani tekshirish
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error("Admin getSession error:", sessionError);
+    redirect("/login");
+  }
   if (session) {
     await supabase.auth.refreshSession();
   }
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (!user || authError) {
+    console.error("Admin getUser error:", authError);
     redirect("/login");
   }
 

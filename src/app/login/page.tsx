@@ -28,17 +28,7 @@ const LoginPage: React.FC = () => {
       setAuthMessage(message);
       localStorage.removeItem("authMessage");
     }
-
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log("Session found, refreshing...");
-        await supabase.auth.refreshSession();
-        router.replace("/admin");
-      }
-    };
-    checkSession();
-  }, [router]);
+  }, []);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -84,7 +74,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Sessiya yaratilmadi. Iltimos, qayta urinib ko‘ring.");
       }
-    } catch {
+    } catch (error) {
       setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);
@@ -142,7 +132,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Ro‘yxatdan o‘tish jarayonida xatolik yuz berdi.");
       }
-    } catch {
+    } catch (error) {
       setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);

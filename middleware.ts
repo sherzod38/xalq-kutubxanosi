@@ -1,4 +1,5 @@
 
+// middleware.ts
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -6,28 +7,29 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
 
-  // Sessiyani tekshirish va yangilash
-  const { data: { session } } = await supabase.auth.getSession();
+  // Sessiyani tekshirish
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error("Middleware getSession error:", sessionError);
+  }
   if (session) {
     await supabase.auth.refreshSession();
   }
 
   const { data: { user }, error } = await supabase.auth.getUser();
-  console.log("Middleware user:", user, "Error:", error);
+  if (error) {
+    console.error("Middleware getUser error:", error);
+  }
 
-  const protectedRoutes = ["/admin", "/books", "/book/:path*"];
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    req.nextUrl.pathname.startsWith(route)
-  );
-
-  // Redirect agar foydalanuvchi bo‘lmasa
-  if (isProtectedRoute && (!user || error)) {
+  // Faqat /admin sahifasi uchun autentifikatsiya tekshiruvi
+  if (req.nextUrl.pathname.startsWith("/admin") && !user) {
     const redirectUrl = new URL("/login", req.url);
     redirectUrl.searchParams.set("redirected", "true");
+    redirectUrl.searchParams.set("from", req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Cookie’lar orqali sessiyani sinxronlashtirish
+  // Boshqa sahifalar uchun hech qanday cheklov yo‘q
   const response = NextResponse.next();
   if (session) {
     response.cookies.set("sb-access-token", session.access_token, {
@@ -48,5 +50,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/books/:path*", "/book/:path*"],
+  matcher: ["/admin/:path*"], // Faqat /admin uchun ishlaydi
 };

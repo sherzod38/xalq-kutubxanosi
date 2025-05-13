@@ -14,8 +14,9 @@ export async function addBook(formData: FormData) {
   const region = formData.get("region") as string;
   const district = formData.get("district") as string;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (!user || userError) {
+    console.error("Supabase getUser error:", userError);
     throw new Error("Foydalanuvchi topilmadi");
   }
 
@@ -30,6 +31,7 @@ export async function addBook(formData: FormData) {
   });
 
   if (error) {
+    console.error("Supabase insert error:", error);
     throw new Error("Kitob qo‘shishda xatolik: " + error.message);
   }
 

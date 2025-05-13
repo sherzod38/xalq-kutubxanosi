@@ -1,68 +1,42 @@
 
 // src/app/book/[id]/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { notFound, redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { notFound } from "next/navigation";
+import DeleteButton from "@/components/DeleteButton";
 
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string | null;
-  phone_number: string | null;
-  region: string | null;
-  district: string | null;
-  created_by: string | null;
-  created_at: string;
-}
-
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function BookPage({ params }: PageProps) {
-  const { id } = await params;
+export default async function BookPage({ params }: { params: { id: string } }) {
   const supabase = await createSupabaseServerClient();
   
-  // Sessiyani yangilash
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.auth.refreshSession();
-  }
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (!user || authError) {
-    redirect("/login");
-  }
-
-  const { data, error } = await supabase
+  // Kitobni olish
+  const { data: book, error } = await supabase
     .from("books")
-    .select("id, title, author, description, phone_number, region, district, created_by, created_at")
-    .eq("id", id)
+    .select("*")
+    .eq("id", params.id)
     .single();
 
-  if (error || !data) {
+  if (error || !book) {
+    console.error("Book fetch error:", error);
     notFound();
   }
 
-  const book: Book = data;
+  // Foydalanuvchi tekshiruvi (faqat DeleteButton uchun)
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    console.error("Book getUser error:", authError);
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md">
+      <div className="w-full max-w-md">
         <h1 className="text-2xl font-bold mb-4">{book.title}</h1>
         <p className="text-gray-600 mb-2">Muallif: {book.author}</p>
-        <p className="text-gray-500 mb-4">{book.description || "Tavsif yo‘q"}</p>
-        {book.phone_number && (
-          <p className="text-gray-600 mb-2">Telefon: {book.phone_number}</p>
+        <p className="mb-2">Tavsif: {book.description || "Yo‘q"}</p>
+        <p className="mb-2">Telefon: {book.phone_number || "Yo‘q"}</p>
+        <p className="mb-2">Viloyat: {book.region || "Yo‘q"}</p>
+        <p className="mb-4">Tuman: {book.district || "Yo‘q"}</p>
+        {user && book.created_by === user.id && (
+          <DeleteButton bookId={book.id} />
         )}
-        {book.region && <p className="text-gray-600 mb-2">Viloyat: {book.region}</p>}
-        {book.district && <p className="text-gray-600 mb-4">Tuman: {book.district}</p>}
-        <Button asChild variant="outline" className="transition-none">
-          <Link href="/books">Orqaga</Link>
-        </Button>
       </div>
     </main>
   );

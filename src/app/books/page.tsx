@@ -1,103 +1,53 @@
 
 // src/app/books/page.tsx
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import type { PostgrestError } from "@supabase/supabase-js";
-import { deleteBook } from "./actions";
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string | null;
-  phone_number: string | null;
-  region: string | null;
-  district: string | null;
-  created_by: string | null;
-  created_at: string;
-}
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import DeleteButton from "@/components/DeleteButton";
 
 export default async function BooksPage() {
   const supabase = await createSupabaseServerClient();
   
-  // Sessiyani yangilash
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.auth.refreshSession();
+  // Kitoblarni olish
+  const { data: books, error } = await supabase.from("books").select("*");
+  if (error) {
+    console.error("Books fetch error:", error);
+    return (
+      <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
+        <h1 className="text-2xl font-bold mb-6">Kitoblar</h1>
+        <p>Xatolik yuz berdi: {error.message}</p>
+      </main>
+    );
   }
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (!user || authError) {
-    redirect("/login");
-  }
-
-  let books: Book[] = [];
-  let error: PostgrestError | null = null;
-
-  if (user) {
-    const { data, error: queryError } = await supabase
-      .from("books")
-      .select("id, title, author, description, phone_number, region, district, created_by, created_at")
-      .eq("created_by", user.id);
-
-    if (queryError) {
-      error = queryError;
-    } else {
-      books = data || [];
-    }
+  // Foydalanuvchi tekshiruvi (faqat DeleteButton uchun)
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    console.error("Books getUser error:", authError);
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      {error && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
-          <AlertDescription>Xatolik: {error.message}</AlertDescription>
-        </Alert>
-      )}
-      {authError && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
-          <AlertDescription>Autentifikatsiya xatosi: Iltimos, qayta kiring.</AlertDescription>
-        </Alert>
-      )}
-      {books.length > 0 ? (
-        <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {books.map((book: Book) => (
-            <div
-              key={book.id}
-              className="p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <h2 className="text-lg font-semibold">{book.title}</h2>
-                <p className="text-gray-600">Muallif: {book.author}</p>
-                <p className="text-gray-500 truncate">
-                  {book.description || "Tavsif yo‘q"}
-                </p>
-              </div>
-              <div className="mt-4 flex gap-2">
-                <Button asChild variant="outline" className="transition-none">
-                  <Link href={`/book/${book.id}`}>Batafsil</Link>
-                </Button>
-                <form action={deleteBook.bind(null, book.id)}>
-                  <Button type="submit" variant="destructive" className="transition-none">
-                    O‘chirish
-                  </Button>
-                </form>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="w-full max-w-4xl text-center">
-          <p className="text-gray-600">Siz hali kitob qo‘shmaganisiz.</p>
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-6">Kitoblar</h1>
+      <div className="w-full max-w-4xl">
+        {books && books.length > 0 ? (
+          <ul className="space-y-4">
+            {books.map((book) => (
+              <li key={book.id} className="p-4 bg-white rounded-lg shadow-md">
+                <Link href={`/book/${book.id}`}>
+                  <h2 className="text-xl font-semibold">{book.title}</h2>
+                  <p className="text-gray-600">{book.author}</p>
+                </Link>
+                {user && book.created_by === user.id && (
+                  <DeleteButton bookId={book.id} />
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Hech qanday kitob topilmadi.</p>
+        )}
+      </div>
     </main>
   );
 }

@@ -1,8 +1,8 @@
-
 // src/app/layout.tsx
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { Suspense } from "react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +18,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uz">
+      <head>
+        <link rel="preload" href="/_next/static/css/globals.css" as="style" />
+      </head>
       <body className={inter.className}>
-        <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-gray-100">Yuklanmoqda...</div>}>
-          {children}
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-gray-100">Yuklanmoqda...</div>}>
+            {children}
+          </Suspense>
+        </ErrorBoundary>
       </body>
     </html>
   );
