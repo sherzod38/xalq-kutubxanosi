@@ -61,5 +61,4 @@ export default async function BookPage({ params }: { params: { id: string } }) {
     </main>
   );
 }
-
 export const dynamic = "force-dynamic";
