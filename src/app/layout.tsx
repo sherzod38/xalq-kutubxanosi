@@ -1,7 +1,7 @@
 
 // src/app/layout.tsx
 import { Inter } from "next/font/google";
-import "../styles/global.css";
+import "@/styles/globals.css";
 import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
