@@ -20,6 +20,7 @@ export async function middleware(req: NextRequest) {
     req.nextUrl.pathname.startsWith(route)
   );
 
+  // Redirect agar foydalanuvchi bo‘lmasa
   if (isProtectedRoute && (!user || error)) {
     const redirectUrl = new URL("/login", req.url);
     redirectUrl.searchParams.set("redirected", "true");

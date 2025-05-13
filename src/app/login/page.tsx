@@ -21,6 +21,7 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Login page mounted, checking session...");
     setIsMounted(true);
     const message = localStorage.getItem("authMessage");
     if (message) {
@@ -31,8 +32,9 @@ const LoginPage: React.FC = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        console.log("Session found, refreshing...");
         await supabase.auth.refreshSession();
-        router.replace("/admin"); // push o'rniga replace ishlatish
+        router.replace("/admin");
       }
     };
     checkSession();
@@ -78,7 +80,7 @@ const LoginPage: React.FC = () => {
       } else if (data.session) {
         await supabase.auth.refreshSession();
         setSuccess("Muvaffaqiyatli kirish!");
-        router.replace("/admin"); // push o'rniga replace
+        router.replace("/admin");
       } else {
         setError("Sessiya yaratilmadi. Iltimos, qayta urinib ko‘ring.");
       }
