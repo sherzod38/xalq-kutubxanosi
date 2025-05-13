@@ -1,4 +1,3 @@
-
 // src/app/admin/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { addBook } from "./actions";
 
 export default async function AdminPage() {
+  console.log("AdminPage rendering started");
   const supabase = await createSupabaseServerClient();
   
   // Sessiyani tekshirish
@@ -25,6 +25,7 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
+  console.log("AdminPage rendering completed, user:", user.id);
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       <div className="w-full max-w-md">
