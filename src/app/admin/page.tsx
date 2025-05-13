@@ -4,38 +4,7 @@ import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-export async function addBook(formData: FormData) {
-  "use server";
-  const supabase = await createSupabaseServerClient();
-  const title = formData.get("title") as string;
-  const author = formData.get("author") as string;
-  const description = formData.get("description") as string;
-  const phone_number = formData.get("phone_number") as string;
-  const region = formData.get("region") as string;
-  const district = formData.get("district") as string;
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    throw new Error("Foydalanuvchi topilmadi");
-  }
-
-  const { error } = await supabase.from("books").insert({
-    title,
-    author,
-    description,
-    phone_number,
-    region,
-    district,
-    created_by: user.id,
-  });
-
-  if (error) {
-    throw new Error("Kitob qo‘shishda xatolik: " + error.message);
-  }
-
-  redirect("/books");
-}
+import { addBook } from "./actions";
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
