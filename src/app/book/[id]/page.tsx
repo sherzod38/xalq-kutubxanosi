@@ -1,7 +1,7 @@
 
 // src/app/book/[id]/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation"; // redirect import qo'shildi
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -18,12 +18,20 @@ interface Book {
 }
 
 interface PageProps {
-  params: Promise<{ id: string }>; // params Promise sifatida aniqlanadi
+  params: Promise<{ id: string }>;
 }
 
 export default async function BookPage({ params }: PageProps) {
-  const { id } = await params; // params ni await bilan ochamiz
+  const { id } = await params;
   const supabase = await createSupabaseServerClient();
+  
+  // Sessiyani yangilash
+  await supabase.auth.refreshSession();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (!user || authError) {
+    redirect("/login"); // redirect endi to'g'ri ishlaydi
+  }
 
   const { data, error } = await supabase
     .from("books")
@@ -32,7 +40,7 @@ export default async function BookPage({ params }: PageProps) {
     .single();
 
   if (error || !data) {
-    notFound(); // Agar kitob topilmasa, 404 sahifasiga yo‘naltirish
+    notFound();
   }
 
   const book: Book = data;
@@ -56,4 +64,4 @@ export default async function BookPage({ params }: PageProps) {
   );
 }
 
-export const dynamic = "force-dynamic"; // Sahifani har doim dinamik qilish
+export const dynamic = "force-dynamic";

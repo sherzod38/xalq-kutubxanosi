@@ -17,9 +17,11 @@ const LoginPage: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // Hydration muammosini oldini olish
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true); // Komponent mounted bo‘lganda
     const message = localStorage.getItem("authMessage");
     if (message) {
       setAuthMessage(message);
@@ -144,6 +146,11 @@ const LoginPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Hydration xatosini oldini olish uchun
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">

@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import type { PostgrestError } from "@supabase/supabase-js";
-import { deleteBook } from "./actions"; // deleteBook ni import qilish
+import { deleteBook } from "./actions";
 
 interface Book {
   id: string;
@@ -22,6 +22,9 @@ interface Book {
 
 export default async function BooksPage() {
   const supabase = await createSupabaseServerClient();
+  
+  // Sessiyani yangilash
+  await supabase.auth.refreshSession();
   const {
     data: { user },
     error: authError,
