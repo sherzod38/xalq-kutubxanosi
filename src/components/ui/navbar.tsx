@@ -48,7 +48,7 @@ export default function Navbar() {
                   <Button variant="outline">Mening kitoblarim</Button>
                 </Link>
                 <Link href="/admin">
-                  <Button variant="outline">Kitob qo'shish</Button>
+                  <Button variant="outline">Kitob qo&apos;shish</Button>
                 </Link>
                 <Button onClick={handleSignOut} variant="destructive">
                   Chiqish
