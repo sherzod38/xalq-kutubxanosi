@@ -17,9 +17,9 @@ interface Book {
   created_at: string;
 }
 
-interface BookPageProps {
-  params: { id: string };
-}
+// interface BookPageProps {
+//   params: { id: string };
+// }
 
 // Sahifa komponentini quyidagicha yozing:
 export default async function BookPage({ params }: { params: { id: string } }) {
