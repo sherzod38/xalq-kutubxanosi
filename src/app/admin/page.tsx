@@ -51,14 +51,14 @@ export default async function AdminPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       <h1 className="text-2xl font-bold mb-6">Kitob qo‘shish</h1>
-      <form action={addBook} className="w-full max-w-md space-y-4">
-        <Input name="title" placeholder="Kitob nomi" required />
-        <Input name="author" placeholder="Muallif" required />
-        <Input name="description" placeholder="Tavsif" required />
-        <Input name="phone_number" placeholder="Telefon raqami" required />
-        <Input name="region" placeholder="Viloyat" required />
-        <Input name="district" placeholder="Tuman" required />
-        <Button type="submit">Kitob qo‘shish</Button>
+      <form action={addBook} className="w-full max-w-md space-y-4 animate-none">
+        <Input name="title" placeholder="Kitob nomi" required className="transition-none" />
+        <Input name="author" placeholder="Muallif" required className="transition-none" />
+        <Input name="description" placeholder="Tavsif" required className="transition-none" />
+        <Input name="phone_number" placeholder="Telefon raqami" required className="transition-none" />
+        <Input name="region" placeholder="Viloyat" required className="transition-none" />
+        <Input name="district" placeholder="Tuman" required className="transition-none" />
+        <Button type="submit" className="transition-none">Kitob qo‘shish</Button>
       </form>
     </main>
   );

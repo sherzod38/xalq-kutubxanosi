@@ -30,6 +30,7 @@ const LoginPage: React.FC = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        await supabase.auth.refreshSession();
         router.push("/admin");
       }
     };
@@ -66,8 +67,15 @@ const LoginPage: React.FC = () => {
       });
 
       if (error) {
-        setError("Kirishda xatolik: " + error.message);
+        if (error.message.includes("Invalid login credentials")) {
+          setError("Noto‘g‘ri email yoki parol.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setError("Email tasdiqlanmagan. Iltimos, emailingizni tekshiring.");
+        } else {
+          setError("Kirishda xatolik: " + error.message);
+        }
       } else if (data.session) {
+        await supabase.auth.refreshSession();
         setSuccess("Muvaffaqiyatli kirish!");
         router.push("/admin");
       } else {
@@ -116,9 +124,7 @@ const LoginPage: React.FC = () => {
 
       if (error) {
         if (error.message.includes("Database error saving new user")) {
-          setError(
-            "Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo yuz berdi."
-          );
+          setError("Ro‘yxatdan o‘tishda xatolik: Ma’lumotlar bazasiga saqlashda muammo.");
         } else if (error.message.includes("Email signups are disabled")) {
           setError("Ro‘yxatdan o‘tish vaqtincha o‘chirilgan.");
         } else {
@@ -126,7 +132,7 @@ const LoginPage: React.FC = () => {
         }
       } else if (data.user) {
         setSuccess(
-          "Ro‘yxatdan o‘tish muvaffaqiyatli! Emailingizni tasdiqlang va keyin kiring."
+          "Ro‘yxatdan o‘tish muvaffaqiyatli! Email tasdiqlash xatini tekshiring va tasdiqlangandan so‘ng kiring."
         );
         setEmail("");
         setPassword("");
@@ -144,7 +150,7 @@ const LoginPage: React.FC = () => {
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Kirish yoki Ro‘yxatdan o‘tish</h1>
-        <Tabs defaultValue="login">
+        <Tabs defaultValue="login" className="animate-none">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Kirish</TabsTrigger>
             <TabsTrigger value="signup">Ro‘yxatdan o‘tish</TabsTrigger>
@@ -183,7 +189,7 @@ const LoginPage: React.FC = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 transition-none"
                 disabled={loading}
               >
                 {loading ? "Kirilmoqda..." : "Kirish"}
@@ -224,7 +230,7 @@ const LoginPage: React.FC = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-green-600 hover:bg-green-700 transition-none"
                 disabled={loading}
               >
                 {loading ? "Ro‘yxatdan o‘tilmoqda..." : "Ro‘yxatdan o‘tish"}
@@ -233,19 +239,19 @@ const LoginPage: React.FC = () => {
           </TabsContent>
         </Tabs>
         {authMessage && (
-          <Alert variant="destructive" className="mt-4">
+          <Alert variant="destructive" className="mt-4 animate-none">
             <AlertTitle>Xabar</AlertTitle>
             <AlertDescription>{authMessage}</AlertDescription>
           </Alert>
         )}
         {error && (
-          <Alert variant="destructive" className="mt-4">
+          <Alert variant="destructive" className="mt-4 animate-none">
             <AlertTitle>Xatolik</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         {success && (
-          <Alert variant="default" className="mt-4">
+          <Alert variant="default" className="mt-4 animate-none">
             <AlertTitle>Muvaffaqiyat</AlertTitle>
             <AlertDescription>{success}</AlertDescription>
           </Alert>

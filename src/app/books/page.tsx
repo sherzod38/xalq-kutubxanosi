@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation"; // redirect import qo'shildi
 import type { PostgrestError } from "@supabase/supabase-js";
 
 interface Book {
@@ -36,6 +37,10 @@ export default async function BooksPage() {
     error: authError,
   } = await supabase.auth.getUser();
 
+  if (!user || authError) {
+    redirect("/login"); // 40-qator, endi xato bo'lmaydi
+  }
+
   let books: Book[] = [];
   let error: PostgrestError | null = null;
 
@@ -52,19 +57,15 @@ export default async function BooksPage() {
     }
   }
 
-  if (authError) {
-    console.error("Autentifikatsiya xatosi:", authError.message);
-  }
-
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       {error && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
           <AlertDescription>Xatolik: {error.message}</AlertDescription>
         </Alert>
       )}
       {authError && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
           <AlertDescription>Autentifikatsiya xatosi: Iltimos, qayta kiring.</AlertDescription>
         </Alert>
       )}
@@ -83,7 +84,7 @@ export default async function BooksPage() {
                 </p>
               </div>
               <div className="mt-4 flex gap-2">
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="transition-none">
                   <Link href={`/book/${book.id}`}>Batafsil</Link>
                 </Button>
                 <form
@@ -96,7 +97,7 @@ export default async function BooksPage() {
                     }
                   }}
                 >
-                  <Button type="submit" variant="destructive">
+                  <Button type="submit" variant="destructive" className="transition-none">
                     O‘chirish
                   </Button>
                 </form>

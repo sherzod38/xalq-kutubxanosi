@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  console.log("Middleware user:", user, "Error:", error);
 
   // /books yoki /admin sahifalariga kirishda autentifikatsiyani tekshirish
   if (!user && (request.nextUrl.pathname.startsWith("/books") || request.nextUrl.pathname.startsWith("/admin"))) {

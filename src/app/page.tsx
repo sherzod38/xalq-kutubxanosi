@@ -27,7 +27,7 @@ export default async function HomePage() {
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       <h1 className="text-2xl font-bold mb-6">Xalq Kutubxonasi</h1>
       {error && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6">
+        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
           <AlertDescription>Xatolik: {error.message}</AlertDescription>
         </Alert>
       )}
@@ -46,7 +46,7 @@ export default async function HomePage() {
                 </p>
               </div>
               <div className="mt-4">
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="transition-none">
                   <Link href={`/book/${book.id}`}>Batafsil</Link>
                 </Button>
               </div>

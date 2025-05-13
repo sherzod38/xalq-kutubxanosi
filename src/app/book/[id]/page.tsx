@@ -58,7 +58,7 @@ export default async function BookPage({ params }: BookPageProps) {
             <strong>Tuman:</strong> {typedBook.district || "Yo‘q"}
           </p>
         </div>
-        <Button asChild variant="link" className="mt-4">
+        <Button asChild variant="link" className="mt-4 transition-none">
           <Link href="/books">Orqaga</Link>
         </Button>
       </div>
