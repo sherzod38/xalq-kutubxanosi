@@ -18,7 +18,7 @@ interface Book {
 }
 
 // Props tipini to'g'ri belgilash
-export default async function BookPage(props: any) {
+export default async function BookPage(props: { params: { id: string } }) {
   const { id } = props.params;
   const supabase = await createSupabaseServerClient();
 
