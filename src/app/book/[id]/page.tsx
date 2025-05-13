@@ -17,11 +17,6 @@ interface Book {
   created_at: string;
 }
 
-// interface BookPageProps {
-//   params: { id: string };
-// }
-
-// Sahifa komponentini quyidagicha yozing:
 export default async function BookPage({ params }: { params: { id: string } }) {
   const { id } = params;
   const supabase = await createSupabaseServerClient();
