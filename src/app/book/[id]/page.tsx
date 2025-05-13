@@ -1,12 +1,14 @@
 
 // src/app/book/[id]/page.tsx
+import { Suspense } from "react";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import DeleteButton from "@/components/DeleteButton";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
+async function BookContent({ params }: { params: Promise<{ id: string }> }) {
   console.log("BookPage rendering started for id");
-  const resolvedParams = await params; // params Promise’ni resolve qilish
+  const resolvedParams = await params;
   const id = resolvedParams.id;
 
   const supabase = await createSupabaseServerClient();
@@ -44,6 +46,16 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
         )}
       </div>
     </main>
+  );
+}
+
+export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Yuklanmoqda...</div>}>
+        <BookContent params={params} />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
