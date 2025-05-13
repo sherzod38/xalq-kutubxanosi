@@ -1,4 +1,3 @@
-
 // src/app/login/page.tsx
 "use client";
 
@@ -74,7 +73,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Sessiya yaratilmadi. Iltimos, qayta urinib ko‘ring.");
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);
@@ -89,6 +88,7 @@ const LoginPage: React.FC = () => {
 
     if (!email || !password) {
       setError("Email va parol maydonlari to‘ldirilishi shart.");
+      setLoading(false);
       setLoading(false);
       return;
     }
@@ -132,7 +132,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError("Ro‘yxatdan o‘tish jarayonida xatolik yuz berdi.");
       }
-    } catch (error) {
+    } catch (_error) {
       setError("Noma’lum xatolik yuz berdi.");
     } finally {
       setLoading(false);

@@ -1,10 +1,11 @@
-
 // src/app/books/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import DeleteButton from "@/components/DeleteButton";
 
 export default async function BooksPage() {
+  console.log("BooksPage rendering started");
   const supabase = await createSupabaseServerClient();
   
   // Kitoblarni olish
@@ -25,6 +26,7 @@ export default async function BooksPage() {
     console.error("Books getUser error:", authError);
   }
 
+  console.log("BooksPage rendering completed, books count:", books?.length);
   return (
     <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
       <h1 className="text-2xl font-bold mb-6">Kitoblar</h1>
