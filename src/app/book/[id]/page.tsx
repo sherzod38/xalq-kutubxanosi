@@ -1,17 +1,21 @@
+
 // src/app/book/[id]/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import DeleteButton from "@/components/DeleteButton";
 
-export default async function BookPage({ params }: { params: { id: string } }) {
-  console.log("BookPage rendering started for id:", params.id);
+export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
+  console.log("BookPage rendering started for id");
+  const resolvedParams = await params; // params Promise’ni resolve qilish
+  const id = resolvedParams.id;
+
   const supabase = await createSupabaseServerClient();
   
   // Kitobni olish
   const { data: book, error } = await supabase
     .from("books")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !book) {
