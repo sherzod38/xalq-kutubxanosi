@@ -24,7 +24,11 @@ export default async function BooksPage() {
   const supabase = await createSupabaseServerClient();
   
   // Sessiyani yangilash
-  await supabase.auth.refreshSession();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.auth.refreshSession();
+  }
+
   const {
     data: { user },
     error: authError,

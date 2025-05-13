@@ -1,8 +1,7 @@
 
 // src/utils/supabase/server.ts
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { CookieOptions } from "@supabase/ssr";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -16,24 +15,18 @@ export async function createSupabaseServerClient() {
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({
-            name,
-            value,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-            ...options,
-          });
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            console.error("Cookie set error:", error);
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.set({
-            name,
-            value: "",
-            expires: new Date(0),
-            path: "/",
-            ...options,
-          });
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch (error) {
+            console.error("Cookie remove error:", error);
+          }
         },
       },
     }

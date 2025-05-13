@@ -17,11 +17,11 @@ const LoginPage: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isMounted, setIsMounted] = useState(false); // Hydration muammosini oldini olish
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setIsMounted(true); // Komponent mounted bo‘lganda
+    setIsMounted(true);
     const message = localStorage.getItem("authMessage");
     if (message) {
       setAuthMessage(message);
@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         await supabase.auth.refreshSession();
-        router.push("/admin");
+        router.replace("/admin"); // push o'rniga replace ishlatish
       }
     };
     checkSession();
@@ -78,7 +78,7 @@ const LoginPage: React.FC = () => {
       } else if (data.session) {
         await supabase.auth.refreshSession();
         setSuccess("Muvaffaqiyatli kirish!");
-        router.push("/admin");
+        router.replace("/admin"); // push o'rniga replace
       } else {
         setError("Sessiya yaratilmadi. Iltimos, qayta urinib ko‘ring.");
       }
@@ -147,7 +147,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // Hydration xatosini oldini olish uchun
   if (!isMounted) {
     return null;
   }

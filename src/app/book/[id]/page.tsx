@@ -1,7 +1,7 @@
 
 // src/app/book/[id]/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { notFound, redirect } from "next/navigation"; // redirect import qo'shildi
+import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -26,11 +26,15 @@ export default async function BookPage({ params }: PageProps) {
   const supabase = await createSupabaseServerClient();
   
   // Sessiyani yangilash
-  await supabase.auth.refreshSession();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.auth.refreshSession();
+  }
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (!user || authError) {
-    redirect("/login"); // redirect endi to'g'ri ishlaydi
+    redirect("/login");
   }
 
   const { data, error } = await supabase
