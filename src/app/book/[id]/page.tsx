@@ -17,9 +17,16 @@ interface Book {
   created_at: string;
 }
 
-// Props tipini to'g'ri belgilash
-export default async function BookPage(props: { params: { id: string } }) {
-  const { id } = props.params;
+// Updated type definition to match Next.js 15 requirements
+type PageProps = {
+  params: {
+    id: string;
+  };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default async function BookPage({ params }: PageProps) {
+  const { id } = params;
   const supabase = await createSupabaseServerClient();
 
   const { data: book, error } = await supabase
