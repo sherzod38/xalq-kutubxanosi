@@ -192,7 +192,6 @@ const LoginPage: React.FC = () => {
                 disabled={loading}
               >
                 {loading ? "Kirilmoqda..." : "Kirish"}
-              [/home/sherzod/Pictures/Screenshot from 2025-05-13 18-10-37.png]
               </Button>
             </form>
           </TabsContent>

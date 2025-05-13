@@ -18,11 +18,11 @@ interface Book {
 }
 
 interface BookPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function BookPage({ params }: BookPageProps) {
-  const { id } = await params;
+  const { id } = params;
   const supabase = await createSupabaseServerClient();
 
   const { data: book, error } = await supabase
