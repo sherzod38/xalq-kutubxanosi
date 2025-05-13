@@ -3,7 +3,6 @@
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage() {

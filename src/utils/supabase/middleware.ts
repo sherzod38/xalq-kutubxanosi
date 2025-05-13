@@ -1,10 +1,10 @@
 
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
+// src/utils/supabase/middleware.ts
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-export const createClient = (request: NextRequest) => {
-  // Create an unmodified response
-  let supabaseResponse = NextResponse.next({
+export async function updateSession(request: NextRequest) {
+  let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -15,54 +15,40 @@ export const createClient = (request: NextRequest) => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+        set(name: string, value: string) {
+          response.cookies.set({
+            name,
+            value,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+          });
         },
-      },
-    },
-  );
-
-  return supabaseResponse
-};
-
-export const updateSession = (request: any) => {
-  // Create an unmodified response
-  let supabaseResponse = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+        remove(name: string) {
+          response.cookies.set({
+            name,
+            value: "",
+            expires: new Date(0),
+            path: "/",
+          });
         },
       },
-    },
+    }
   );
 
-  return supabaseResponse
-};
+  const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user && request.nextUrl.pathname.startsWith("/books")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: ["/books/:path*", "/admin/:path*"],
+};
