@@ -18,39 +18,46 @@ export async function middleware(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string) {
+        set(name: string, value: string, options: any) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          });
           response.cookies.set({
             name,
             value,
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
+            ...options,
           });
         },
-        remove(name: string) {
-          response.cookies.set({
+        remove(name: string, options: any) {
+          request.cookies.delete({
             name,
-            value: "",
-            expires: new Date(0),
-            path: "/",
+            ...options,
+          });
+          response.cookies.delete({
+            name,
+            ...options,
           });
         },
       },
     }
   );
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-  console.log("Middleware user:", user, "Error:", error);
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // /books yoki /admin sahifalariga kirishda autentifikatsiyani tekshirish
-  if (!user && (request.nextUrl.pathname.startsWith("/books") || request.nextUrl.pathname.startsWith("/admin"))) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // Himoyalangan yo'llar
+  const protectedRoutes = ['/admin', '/books'];
+  
+  if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/books/:path*", "/admin/:path*"],
+  matcher: ['/admin/:path*', '/books/:path*']
 };

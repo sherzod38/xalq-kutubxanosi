@@ -6,13 +6,11 @@ import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -21,54 +19,47 @@ export default function Navbar() {
       setUser(user);
     }
     checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    window.location.href = "/login";
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      router.push(`/books?search=${encodeURIComponent(searchTerm)}`);
-    } else {
-      router.push("/books");
-    }
+    router.push("/login");
   };
 
   return (
-    <nav className="bg-white p-4 shadow-md">
-      <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-        <Link href="/" className="text-black text-lg font-bold">
-          Xalq Kutubxonasi
-        </Link>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-          <form onSubmit={handleSearch} className="w-full sm:w-64">
-            <Input
-              type="text"
-              placeholder="Kitob yoki muallif qidiring"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
-          </form>
-          <Button asChild variant="ghost">
-            <Link href="/books">Kitoblar</Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link href="/admin">Kitob qo‘shish</Link>
-          </Button>
-          {user ? (
-            <Button variant="outline" onClick={handleSignOut}>
-              Chiqish
-            </Button>
-          ) : (
-            <Button asChild variant="outline">
-              <Link href="/login">Kirish</Link>
-            </Button>
-          )}
+    <nav className="bg-white shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <Link href="/" className="flex items-center">
+              Bosh sahifa
+            </Link>
+          </div>
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <>
+                <Link href="/books">
+                  <Button variant="outline">Mening kitoblarim</Button>
+                </Link>
+                <Link href="/admin">
+                  <Button variant="outline">Kitob qo'shish</Button>
+                </Link>
+                <Button onClick={handleSignOut} variant="destructive">
+                  Chiqish
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button>Kirish</Button>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </nav>
