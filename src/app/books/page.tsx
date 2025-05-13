@@ -38,7 +38,7 @@ export default async function BooksPage() {
   } = await supabase.auth.getUser();
 
   if (!user || authError) {
-    redirect("/login"); // 40-qator, endi xato bo'lmaydi
+    redirect("/login");
   }
 
   let books: Book[] = [];
