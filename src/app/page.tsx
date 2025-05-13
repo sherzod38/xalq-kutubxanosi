@@ -1,9 +1,9 @@
 
 // src/app/page.tsx
-import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 
 interface Book {
   id: string;
@@ -18,6 +18,7 @@ interface Book {
 }
 
 export default async function HomePage() {
+  const supabase = await createSupabaseServerClient();
   const { data: books, error } = await supabase
     .from("books")
     .select("id, title, author, description, phone_number, region, district, created_by, created_at");

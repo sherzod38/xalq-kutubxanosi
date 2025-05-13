@@ -3,8 +3,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { PostgrestError } from "@supabase/supabase-js";
 
@@ -22,7 +21,7 @@ interface Book {
 
 async function deleteBook(bookId: string) {
   "use server";
-  const supabase = createServerActionClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("books").delete().eq("id", bookId);
   if (error) {
     throw new Error("Kitob o‘chirishda xatolik: " + error.message);
@@ -31,7 +30,7 @@ async function deleteBook(bookId: string) {
 }
 
 export default async function BooksPage() {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = await createSupabaseServerClient();
   const {
     data: { user },
     error: authError,

@@ -1,6 +1,6 @@
 
 // src/app/book/[id]/page.tsx
-import { supabase } from "@/lib/supabaseClient";
+import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -23,6 +23,7 @@ interface BookPageProps {
 
 export default async function BookPage({ params }: BookPageProps) {
   const { id } = await params;
+  const supabase = await createSupabaseServerClient();
 
   const { data: book, error } = await supabase
     .from("books")
