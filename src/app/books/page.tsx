@@ -2,7 +2,6 @@
 // src/app/books/page.tsx
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import DeleteButton from "@/components/DeleteButton";
 
 export default async function BooksPage() {
