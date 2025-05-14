@@ -3,13 +3,28 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Suspense } from 'react';
 
-export default async function BookPage({ params }: { params: { id: string } }) {
-  console.log('BookPage rendering started, id:', params.id);
+// Book interfeysi
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface BookPageProps {
+  params: Promise<{ id: string }>; // params Promise sifatida aniqlanadi
+}
+
+export default async function BookPage({ params }: BookPageProps) {
+  const { id } = await params; // params Promise'dan ochiladi
+  console.log('BookPage rendering started, id:', id);
   const supabase = await createSupabaseServerClient();
   const { data: book, error } = await supabase
     .from('books')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   console.log('Book fetch result:', { bookTitle: book?.title, error: error?.message });
