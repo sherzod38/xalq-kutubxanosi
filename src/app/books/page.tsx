@@ -4,6 +4,15 @@ import Link from 'next/link';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Suspense } from 'react';
 
+// Book interfeysi
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  description?: string;
+  [key: string]: any; // Qo‘shimcha maydonlar uchun
+}
+
 export default async function BooksPage() {
   console.log('BooksPage rendering started');
   const supabase = await createSupabaseServerClient();
@@ -37,7 +46,7 @@ export default async function BooksPage() {
         <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
           <h1 className="text-2xl font-bold mb-4">Kitoblar</h1>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {books.map((book: any) => (
+            {books.map((book: Book) => (
               <li key={book.id} className="p-4 bg-white rounded-lg shadow">
                 <Link href={`/book/${book.id}`}>
                   <h2 className="text-xl font-semibold">{book.title}</h2>
