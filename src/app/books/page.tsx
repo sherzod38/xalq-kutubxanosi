@@ -10,7 +10,8 @@ interface Book {
   title: string;
   author: string;
   description?: string;
-  [key: string]: any; // Qo‘shimcha maydonlar uchun
+  created_at?: string; // Supabase jadvalidagi umumiy maydon
+  updated_at?: string; // Supabase jadvalidagi umumiy maydon
 }
 
 export default async function BooksPage() {
