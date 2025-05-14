@@ -1,4 +1,3 @@
-
 // src/app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
@@ -19,6 +18,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  console.log('RootLayout rendering started');
   return (
     <html lang="uz">
       <head>
