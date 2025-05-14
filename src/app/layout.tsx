@@ -1,12 +1,11 @@
 
 // src/app/layout.tsx
-"use client";
-
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
+import { ErrorLogger } from '@/components/ErrorLogger';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -14,23 +13,6 @@ export const metadata: Metadata = {
   title: 'Xalq Kutubxonasi',
   description: 'Kitoblar almashish platformasi',
 };
-
-function ErrorLogger() {
-  useEffect(() => {
-    console.log('ErrorLogger mounted');
-    window.addEventListener('error', (event) => {
-      console.error('Global error:', event.message, event.error);
-    });
-    window.addEventListener('unhandledrejection', (event) => {
-      console.error('Unhandled promise rejection:', event.reason);
-    });
-    return () => {
-      window.removeEventListener('error', () => {});
-      window.removeEventListener('unhandledrejection', () => {});
-    };
-  }, []);
-  return null;
-}
 
 export default function RootLayout({
   children,
