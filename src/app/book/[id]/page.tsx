@@ -14,11 +14,11 @@ interface Book {
 }
 
 interface BookPageProps {
-  params: Promise<{ id: string }>; // params Promise sifatida aniqlanadi
+  params: Promise<{ id: string }>;
 }
 
 export default async function BookPage({ params }: BookPageProps) {
-  const { id } = await params; // params Promise'dan ochiladi
+  const { id } = await params;
   console.log('BookPage rendering started, id:', id);
   const supabase = await createSupabaseServerClient();
   const { data: book, error } = await supabase
@@ -34,15 +34,16 @@ export default async function BookPage({ params }: BookPageProps) {
     throw new Error(`Book fetch failed: ${error?.message || 'Book not found'}`);
   }
 
-  console.log('BookPage rendering completed, book title:', book.title);
+  const typedBook: Book = book; // Book turi aniq belgilandi
+  console.log('BookPage rendering completed, book title:', typedBook.title);
 
   return (
     <ErrorBoundary>
       <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
         <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-          <h1 className="text-2xl font-bold mb-4">{book.title}</h1>
-          <p className="text-lg mb-2">Muallif: {book.author}</p>
-          <p className="text-gray-600">{book.description}</p>
+          <h1 className="text-2xl font-bold mb-4">{typedBook.title}</h1>
+          <p className="text-lg mb-2">Muallif: {typedBook.author}</p>
+          <p className="text-gray-600">{typedBook.description}</p>
         </main>
       </Suspense>
     </ErrorBoundary>
