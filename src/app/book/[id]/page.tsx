@@ -7,7 +7,7 @@ import DeleteButton from "@/components/DeleteButton";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 async function BookContent({ params }: { params: Promise<{ id: string }> }) {
-  console.log("BookPage rendering started for id");
+  console.log("BookPage rendering started");
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
@@ -21,14 +21,14 @@ async function BookContent({ params }: { params: Promise<{ id: string }> }) {
     .single();
 
   if (error || !book) {
-    console.error("Book fetch error:", error);
+    console.error("Book fetch error:", error?.message || "No book found", { id });
     notFound();
   }
 
   // Foydalanuvchi tekshiruvi (faqat DeleteButton uchun)
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError) {
-    console.error("Book getUser error:", authError);
+    console.error("Book getUser error:", authError.message);
   }
 
   console.log("BookPage rendering completed, book title:", book.title);
@@ -52,7 +52,7 @@ async function BookContent({ params }: { params: Promise<{ id: string }> }) {
 export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Yuklanmoqda...</div>}>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
         <BookContent params={params} />
       </Suspense>
     </ErrorBoundary>

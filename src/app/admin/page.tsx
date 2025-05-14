@@ -1,18 +1,21 @@
+
 // src/app/admin/page.tsx
+import { Suspense } from "react";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addBook } from "./actions";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-export default async function AdminPage() {
+async function AdminContent() {
   console.log("AdminPage rendering started");
   const supabase = await createSupabaseServerClient();
   
   // Sessiyani tekshirish
   const { data: { session }, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) {
-    console.error("Admin getSession error:", sessionError);
+    console.error("Admin getSession error:", sessionError.message);
     redirect("/login");
   }
   if (session) {
@@ -21,7 +24,7 @@ export default async function AdminPage() {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (!user || authError) {
-    console.error("Admin getUser error:", authError);
+    console.error("Admin getUser error:", authError?.message || "No user found");
     redirect("/login");
   }
 
@@ -114,6 +117,16 @@ export default async function AdminPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
+        <AdminContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 

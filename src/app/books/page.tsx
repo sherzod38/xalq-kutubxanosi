@@ -1,17 +1,19 @@
 
 // src/app/books/page.tsx
+import { Suspense } from "react";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import DeleteButton from "@/components/DeleteButton";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-export default async function BooksPage() {
+async function BooksContent() {
   console.log("BooksPage rendering started");
   const supabase = await createSupabaseServerClient();
   
   // Kitoblarni olish
   const { data: books, error } = await supabase.from("books").select("*");
   if (error) {
-    console.error("Books fetch error:", error);
+    console.error("Books fetch error:", error.message);
     return (
       <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
         <h1 className="text-2xl font-bold mb-6">Kitoblar</h1>
@@ -23,7 +25,7 @@ export default async function BooksPage() {
   // Foydalanuvchi tekshiruvi (faqat DeleteButton uchun)
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError) {
-    console.error("Books getUser error:", authError);
+    console.error("Books getUser error:", authError.message);
   }
 
   console.log("BooksPage rendering completed, books count:", books?.length);
@@ -50,6 +52,16 @@ export default async function BooksPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function BooksPage() {
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
+        <BooksContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
