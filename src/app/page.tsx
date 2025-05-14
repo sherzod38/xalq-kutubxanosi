@@ -1,65 +1,25 @@
 
 // src/app/page.tsx
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { Suspense } from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import Link from 'next/link';
 
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  description: string | null;
-  phone_number: string | null;
-  region: string | null;
-  district: string | null;
-  created_by: string | null;
-  created_at: string;
-}
-
-export default async function HomePage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: books, error } = await supabase
-    .from("books")
-    .select("id, title, author, description, phone_number, region, district, created_by, created_at");
-
+export default function HomePage() {
+  console.log('HomePage rendering started');
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <h1 className="text-2xl font-bold mb-6">Xalq Kutubxonasi</h1>
-      {error && (
-        <Alert variant="destructive" className="w-full max-w-4xl mb-6 animate-none">
-          <AlertDescription>Xatolik: {error.message}</AlertDescription>
-        </Alert>
-      )}
-      {books && books.length > 0 ? (
-        <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {books.map((book: Book) => (
-            <div
-              key={book.id}
-              className="p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
-            >
-              <div>
-                <h2 className="text-lg font-semibold">{book.title}</h2>
-                <p className="text-gray-600">Muallif: {book.author}</p>
-                <p className="text-gray-500 truncate">
-                  {book.description || "Tavsif yo‘q"}
-                </p>
-              </div>
-              <div className="mt-4">
-                <Button asChild variant="outline" className="transition-none">
-                  <Link href={`/book/${book.id}`}>Batafsil</Link>
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="w-full max-w-4xl text-center">
-          <p className="text-gray-600">Hozircha kitoblar yo‘q.</p>
-        </div>
-      )}
-    </main>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
+        <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
+          <h1 className="text-3xl font-bold mb-6">Xalq Kutubxonasi</h1>
+          <p className="text-lg mb-4">Kitoblar almashish platformasiga xush kelibsiz!</p>
+          <Link href="/books" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Kitoblarni ko‘rish
+          </Link>
+          <Link href="/login" className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+            Kirish
+          </Link>
+        </main>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
-
-export const dynamic = "force-dynamic";
