@@ -1,7 +1,7 @@
-// src/app/book/[id]/page.tsx
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Suspense } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Book interfeysi
 interface Book {
@@ -11,6 +11,9 @@ interface Book {
   description?: string;
   created_at?: string;
   updated_at?: string;
+  phone_number?: string;
+  region?: string;
+  district?: string;
 }
 
 interface BookPageProps {
@@ -40,10 +43,54 @@ export default async function BookPage({ params }: BookPageProps) {
   return (
     <ErrorBoundary>
       <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
-        <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-          <h1 className="text-2xl font-bold mb-4">{typedBook.title}</h1>
-          <p className="text-lg mb-2">Muallif: {typedBook.author}</p>
-          <p className="text-gray-600">{typedBook.description}</p>
+        <main className="flex min-h-screen flex-col items-center bg-gray-100 p-4">
+          <Card className="w-full max-w-2xl shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-3xl font-bold">{typedBook.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-700">Muallif</h2>
+                <p className="text-gray-600">{typedBook.author}</p>
+              </div>
+              {typedBook.description && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Tavsif</h2>
+                  <p className="text-gray-600">{typedBook.description}</p>
+                </div>
+              )}
+              {typedBook.phone_number && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Telefon raqami</h2>
+                  <p className="text-gray-600">{typedBook.phone_number}</p>
+                </div>
+              )}
+              {typedBook.region && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Viloyat</h2>
+                  <p className="text-gray-600">{typedBook.region}</p>
+                </div>
+              )}
+              {typedBook.district && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Tuman</h2>
+                  <p className="text-gray-600">{typedBook.district}</p>
+                </div>
+              )}
+              {typedBook.created_at && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Yaratilgan sana</h2>
+                  <p className="text-gray-600">{new Date(typedBook.created_at).toLocaleDateString('uz-UZ')}</p>
+                </div>
+              )}
+              {typedBook.updated_at && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700">Yangilangan sana</h2>
+                  <p className="text-gray-600">{new Date(typedBook.updated_at).toLocaleDateString('uz-UZ')}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </main>
       </Suspense>
     </ErrorBoundary>
