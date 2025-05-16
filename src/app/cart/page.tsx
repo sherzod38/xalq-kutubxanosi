@@ -16,7 +16,7 @@ interface Book {
 interface CartRow {
   id: string;
   book_id: string;
-  books: Book[] | null; // Massiv sifatida yoki null
+  books: Book[] | null; // Massiv yoki null
 }
 
 // CartItem interfeysi
@@ -44,7 +44,7 @@ export default async function CartPage() {
         .select(`
           id,
           book_id,
-          books:book_id (id, title, author)
+          books!cart_book_id_fkey (id, title, author)
         `)
         .eq("user_id", user.id);
 
