@@ -1,10 +1,10 @@
-import { createSupabaseServerClient } from '@/utils/supabase/server';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Suspense } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Trash2 } from 'lucide-react';
+import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Suspense } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Trash2 } from "lucide-react";
 
 // Supabase jadvallari uchun interfeyslar
 interface Book {
@@ -25,20 +25,21 @@ interface CartItem {
 }
 
 export default async function CartPage() {
-  console.log('CartPage rendering started');
+  console.log("CartPage rendering started");
   const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError) {
-    console.error('Auth error:', authError.message);
+    console.error("Auth error:", authError.message);
   }
 
   let cartItems: CartItem[] = [];
+  let errorMessage: string | null = null;
 
   if (user) {
     try {
       const { data, error } = await supabase
-        .from('cart')
+        .from("cart")
         .select(`
           id,
           books (
@@ -47,37 +48,41 @@ export default async function CartPage() {
             author
           )
         `)
-        .eq('user_id', user.id);
+        .eq("user_id", user.id);
 
       if (error) {
-        console.error('Cart fetch error:', error.message, error.details, error.hint);
+        console.error("Cart fetch error:", error.message, error.details, error.hint);
+        errorMessage = "Savatcha ma'lumotlarini olishda xatolik yuz berdi.";
         throw new Error(`Cart fetch failed: ${error.message}`);
       }
 
-      console.log('Raw Supabase data:', data);
+      console.log("Raw Supabase data:", data);
 
       // So'rov natijasini CartItem[] ga aylantirish
-      cartItems = (data || []).map((item: CartRow) => {
-        if (!item.books || item.books.length === 0) {
-          throw new Error(`Book data missing for cart item ${item.id}`);
+      cartItems = (data || []).reduce<CartItem[]>((acc, item: CartRow) => {
+        if (item.books && item.books.length > 0) {
+          acc.push({
+            id: item.id,
+            book: {
+              id: item.books[0].id,
+              title: item.books[0].title,
+              author: item.books[0].author,
+            },
+          });
+        } else {
+          console.warn(`No book data for cart item ${item.id}`);
         }
-        return {
-          id: item.id,
-          book: {
-            id: item.books[0].id, // Birinchi kitobni olish
-            title: item.books[0].title,
-            author: item.books[0].author,
-          },
-        };
-      });
+        return acc;
+      }, []);
 
-      console.log('Cart fetch result:', { itemCount: cartItems.length });
+      console.log("Cart fetch result:", { itemCount: cartItems.length });
     } catch (err) {
-      console.error('Cart processing error:', err);
+      console.error("Cart processing error:", err);
+      errorMessage = "Savatcha ma'lumotlarini qayta ishlashda xatolik yuz berdi.";
     }
   }
 
-  console.log('CartPage rendering completed');
+  console.log("CartPage rendering completed");
 
   return (
     <ErrorBoundary>
@@ -91,18 +96,27 @@ export default async function CartPage() {
             {!user ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
+                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
                   <Link href="/login">
                     <Button className="mt-4">Kirish</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : errorMessage ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-red-600">{errorMessage}</p>
+                  <Link href="/books">
+                    <Button className="mt-4">Kitoblarni ko'rish</Button>
                   </Link>
                 </CardContent>
               </Card>
             ) : cartItems.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchangiz bo`sh.</p>
+                  <p className="text-gray-600">Savatchangiz bo'sh.</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko`rish</Button>
+                    <Button className="mt-4">Kitoblarni ko'rish</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -120,7 +134,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O`chirish
+                          O'chirish
                         </Button>
                       </form>
                     </CardContent>
