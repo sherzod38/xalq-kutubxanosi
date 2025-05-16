@@ -93,7 +93,7 @@ export default async function CartPage() {
             {!user ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
+                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
                   <Link href="/login">
                     <Button className="mt-4">Kirish</Button>
                   </Link>
@@ -104,16 +104,16 @@ export default async function CartPage() {
                 <CardContent className="pt-6">
                   <p className="text-red-600">{errorMessage}</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko'rish</Button>
+                    <Button className="mt-4">Kitoblarni ko`rish</Button>
                   </Link>
                 </CardContent>
               </Card>
             ) : cartItems.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchangiz bo'sh.</p>
+                  <p className="text-gray-600">Savatchangiz bo`sh.</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko'rish</Button>
+                    <Button className="mt-4">Kitoblarni ko`rish</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -131,7 +131,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O'chirish
+                          O`chirish
                         </Button>
                       </form>
                     </CardContent>
