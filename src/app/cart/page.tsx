@@ -1,21 +1,115 @@
-"use client";
+import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Suspense } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Trash2 } from 'lucide-react';
 
-import React from "react";
-import Link from "next/link";
+// Cart va Book interfeyslari
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+}
 
-const CartPage: React.FC = () => {
+interface CartItem {
+  id: string;
+  book: Book;
+}
+
+export default async function CartPage() {
+  console.log('CartPage rendering started');
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let cartItems: CartItem[] = [];
+
+  if (user) {
+    const { data, error } = await supabase
+      .from('cart')
+      .select(`
+        id,
+        books (
+          id,
+          title,
+          author
+        )
+      `)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Cart fetch error:', error.message);
+      throw new Error(`Cart fetch failed: ${error.message}`);
+    }
+
+    // So'rov natijasini CartItem[] ga aylantirish
+    cartItems = (data || []).map((item: any) => ({
+      id: item.id,
+      book: {
+        id: item.books.id,
+        title: item.books.title,
+        author: item.books.author,
+      },
+    }));
+
+    console.log('Cart fetch result:', { itemCount: cartItems.length });
+  }
+
+  console.log('CartPage rendering completed');
+
   return (
-    <main style={{ padding: "2rem" }}>
-      <Link 
-        href="/" 
-        className="text-blue-500 hover:underline mb-4 inline-block"
-      >
-        ← Bosh sahifaga qaytish
-      </Link>
-      <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Savatcha</h1>
-      <p>Bu yerda savatchadagi kitoblar ro&apos;yxati va umumiy ma&apos;lumotlar chiqadi.</p>
-    </main>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
+        <main className="flex min-h-screen flex-col items-center bg-gray-100 p-4">
+          <div className="w-full max-w-4xl">
+            <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">
+              ← Bosh sahifaga qaytish
+            </Link>
+            <h1 className="text-3xl font-bold mb-6">Savatcha</h1>
+            {!user ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
+                  <Link href="/login">
+                    <Button className="mt-4">Kirish</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : cartItems.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-gray-600">Savatchangiz bo'sh.</p>
+                  <Link href="/books">
+                    <Button className="mt-4">Kitoblarni ko'rish</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {cartItems.map((item) => (
+                  <Card key={item.id}>
+                    <CardHeader>
+                      <CardTitle>{item.book.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex justify-between items-center">
+                      <div>
+                        <p className="text-gray-600">Muallif: {item.book.author}</p>
+                      </div>
+                      <form action={`/api/cart/delete/${item.id}`} method="POST">
+                        <Button variant="destructive" size="sm">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          O'chirish
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
+      </Suspense>
+    </ErrorBoundary>
   );
-};
-
-export default CartPage;
+}
