@@ -91,7 +91,7 @@ export default async function CartPage() {
             {!user ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
+                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
                   <Link href="/login">
                     <Button className="mt-4">Kirish</Button>
                   </Link>
