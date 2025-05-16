@@ -134,7 +134,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O'chirish
+                          O`chirish
                         </Button>
                       </form>
                     </CardContent>
