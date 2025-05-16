@@ -3,10 +3,6 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 
-interface NavbarProps {
-  user: { email?: string } | null;
-}
-
 export default async function Navbar() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
