@@ -15,7 +15,8 @@ interface Book {
 
 interface CartRow {
   id: string;
-  books: Book[]; // Massiv sifatida
+  book_id: string;
+  books: Book[] | null; // Massiv sifatida yoki null
 }
 
 // CartItem interfeysi
@@ -43,27 +44,23 @@ export default async function CartPage() {
         .select(`
           id,
           book_id,
-          books!cart_book_id_fkey (
-            id,
-            title,
-            author
-          )
+          books:book_id (id, title, author)
         `)
         .eq("user_id", user.id);
 
       if (error) {
         console.error("Cart fetch error:", error.message, error.details, error.hint);
-        errorMessage = "Savatcha ma`lumotlarini olishda xatolik yuz berdi.";
+        errorMessage = "Savatcha ma'lumotlarini olishda xatolik yuz berdi.";
         throw new Error(`Cart fetch failed: ${error.message}`);
       }
 
-      console.log("Raw Supabase data:", data);
+      console.log("Raw Supabase data:", JSON.stringify(data, null, 2));
 
       // So'rov natijasini CartItem[] ga aylantirish
-      cartItems = (data || []).map((item: CartRow & { book_id: string }) => {
+      cartItems = (data || []).map((item: CartRow) => {
         if (!item.books || item.books.length === 0) {
           console.warn(`No book data for cart item ${item.id}, book_id: ${item.book_id}`);
-          throw new Error(`Book data missing for cart item ${item.id}`);
+          return null; // Null elementlarni keyin filter qilamiz
         }
         return {
           id: item.id,
@@ -73,12 +70,12 @@ export default async function CartPage() {
             author: item.books[0].author,
           },
         };
-      });
+      }).filter((item): item is CartItem => item !== null); // Null elementlarni olib tashlash
 
       console.log("Cart fetch result:", { itemCount: cartItems.length });
     } catch (err) {
       console.error("Cart processing error:", err);
-      errorMessage = "Savatcha ma`lumotlarini qayta ishlashda xatolik yuz berdi.";
+      errorMessage = "Savatcha ma'lumotlarini qayta ishlashda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.";
     }
   }
 
@@ -96,7 +93,7 @@ export default async function CartPage() {
             {!user ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
+                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
                   <Link href="/login">
                     <Button className="mt-4">Kirish</Button>
                   </Link>
@@ -107,16 +104,16 @@ export default async function CartPage() {
                 <CardContent className="pt-6">
                   <p className="text-red-600">{errorMessage}</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko`rish</Button>
+                    <Button className="mt-4">Kitoblarni ko'rish</Button>
                   </Link>
                 </CardContent>
               </Card>
             ) : cartItems.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchangiz bo`sh.</p>
+                  <p className="text-gray-600">Savatchangiz bo'sh.</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko`rish</Button>
+                    <Button className="mt-4">Kitoblarni ko'rish</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -134,7 +131,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O`chirish
+                          O'chirish
                         </Button>
                       </form>
                     </CardContent>
