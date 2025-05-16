@@ -42,7 +42,8 @@ export default async function CartPage() {
         .from("cart")
         .select(`
           id,
-          books (
+          book_id,
+          books!cart_book_id_fkey (
             id,
             title,
             author
@@ -52,33 +53,32 @@ export default async function CartPage() {
 
       if (error) {
         console.error("Cart fetch error:", error.message, error.details, error.hint);
-        errorMessage = "Savatcha ma'lumotlarini olishda xatolik yuz berdi.";
+        errorMessage = "Savatcha ma`lumotlarini olishda xatolik yuz berdi.";
         throw new Error(`Cart fetch failed: ${error.message}`);
       }
 
       console.log("Raw Supabase data:", data);
 
       // So'rov natijasini CartItem[] ga aylantirish
-      cartItems = (data || []).reduce<CartItem[]>((acc, item: CartRow) => {
-        if (item.books && item.books.length > 0) {
-          acc.push({
-            id: item.id,
-            book: {
-              id: item.books[0].id,
-              title: item.books[0].title,
-              author: item.books[0].author,
-            },
-          });
-        } else {
-          console.warn(`No book data for cart item ${item.id}`);
+      cartItems = (data || []).map((item: CartRow & { book_id: string }) => {
+        if (!item.books || item.books.length === 0) {
+          console.warn(`No book data for cart item ${item.id}, book_id: ${item.book_id}`);
+          throw new Error(`Book data missing for cart item ${item.id}`);
         }
-        return acc;
-      }, []);
+        return {
+          id: item.id,
+          book: {
+            id: item.books[0].id,
+            title: item.books[0].title,
+            author: item.books[0].author,
+          },
+        };
+      });
 
       console.log("Cart fetch result:", { itemCount: cartItems.length });
     } catch (err) {
       console.error("Cart processing error:", err);
-      errorMessage = "Savatcha ma'lumotlarini qayta ishlashda xatolik yuz berdi.";
+      errorMessage = "Savatcha ma`lumotlarini qayta ishlashda xatolik yuz berdi.";
     }
   }
 
@@ -134,7 +134,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O`chirish
+                          O'chirish
                         </Button>
                       </form>
                     </CardContent>
