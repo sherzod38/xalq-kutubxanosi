@@ -27,41 +27,54 @@ interface CartItem {
 export default async function CartPage() {
   console.log('CartPage rendering started');
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error('Auth error:', authError.message);
+  }
 
   let cartItems: CartItem[] = [];
 
   if (user) {
-    const { data, error } = await supabase
-      .from('cart')
-      .select(`
-        id,
-        books (
+    try {
+      const { data, error } = await supabase
+        .from('cart')
+        .select(`
           id,
-          title,
-          author
-        )
-      `)
-      .eq('user_id', user.id);
+          books (
+            id,
+            title,
+            author
+          )
+        `)
+        .eq('user_id', user.id);
 
-    if (error) {
-      console.error('Cart fetch error:', error.message);
-      throw new Error(`Cart fetch failed: ${error.message}`);
+      if (error) {
+        console.error('Cart fetch error:', error.message, error.details, error.hint);
+        throw new Error(`Cart fetch failed: ${error.message}`);
+      }
+
+      console.log('Raw Supabase data:', data);
+
+      // So'rov natijasini CartItem[] ga aylantirish
+      cartItems = (data || []).map((item: CartRow) => {
+        if (!item.books || item.books.length === 0) {
+          throw new Error(`Book data missing for cart item ${item.id}`);
+        }
+        return {
+          id: item.id,
+          book: {
+            id: item.books[0].id, // Birinchi kitobni olish
+            title: item.books[0].title,
+            author: item.books[0].author,
+          },
+        };
+      });
+
+      console.log('Cart fetch result:', { itemCount: cartItems.length });
+    } catch (err) {
+      console.error('Cart processing error:', err);
     }
-
-    console.log('Raw Supabase data:', data); // Natijani tekshirish uchun
-
-    // So'rov natijasini CartItem[] ga aylantirish
-    cartItems = (data || []).map((item: CartRow) => ({
-      id: item.id,
-      book: {
-        id: item.books[0].id, // Birinchi kitobni olish
-        title: item.books[0].title,
-        author: item.books[0].author,
-      },
-    }));
-
-    console.log('Cart fetch result:', { itemCount: cartItems.length });
   }
 
   console.log('CartPage rendering completed');
@@ -78,7 +91,7 @@ export default async function CartPage() {
             {!user ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
+                  <p className="text-gray-600">Savatchani ko'rish uchun iltimos, tizimga kiring.</p>
                   <Link href="/login">
                     <Button className="mt-4">Kirish</Button>
                   </Link>
