@@ -6,13 +6,19 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
 
-// Cart va Book interfeyslari
+// Supabase jadvallari uchun interfeyslar
 interface Book {
   id: string;
   title: string;
   author: string;
 }
 
+interface CartRow {
+  id: string;
+  books: Book[]; // Massiv sifatida
+}
+
+// CartItem interfeysi
 interface CartItem {
   id: string;
   book: Book;
@@ -43,13 +49,15 @@ export default async function CartPage() {
       throw new Error(`Cart fetch failed: ${error.message}`);
     }
 
+    console.log('Raw Supabase data:', data); // Natijani tekshirish uchun
+
     // So'rov natijasini CartItem[] ga aylantirish
-    cartItems = (data || []).map((item: any) => ({
+    cartItems = (data || []).map((item: CartRow) => ({
       id: item.id,
       book: {
-        id: item.books.id,
-        title: item.books.title,
-        author: item.books.author,
+        id: item.books[0].id, // Birinchi kitobni olish
+        title: item.books[0].title,
+        author: item.books[0].author,
       },
     }));
 
