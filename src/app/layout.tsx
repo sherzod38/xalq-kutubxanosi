@@ -1,16 +1,13 @@
-// src/app/layout.tsx
 import './globals.css';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Navbar from '@/components/Navbar';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Suspense } from 'react';
-import { ErrorLogger } from '@/components/ErrorLogger';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Xalq Kutubxonasi',
-  description: 'Kitoblar almashish platformasi',
+  description: 'Kitoblar dunyosiga xush kelibsiz',
 };
 
 export default function RootLayout({
@@ -21,16 +18,10 @@ export default function RootLayout({
   console.log('RootLayout rendering started');
   return (
     <html lang="uz">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta charSet="utf-8" />
-      </head>
-      <body className={`${inter.className} bg-gray-100 min-h-screen`}>
-        <ErrorLogger />
+      <body className={inter.className}>
         <ErrorBoundary>
-          <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
-            {children}
-          </Suspense>
+          <Navbar />
+          {children}
         </ErrorBoundary>
       </body>
     </html>
