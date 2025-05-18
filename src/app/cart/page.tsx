@@ -25,7 +25,7 @@ interface CartItem {
 
 export default async function CartPage() {
   console.log('CartPage rendering started');
-  const supabase = await createSupabaseServerClient(); // `await` qo'shildi
+  const supabase = await createSupabaseServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
@@ -47,18 +47,18 @@ export default async function CartPage() {
       .select(`
         id,
         book_id,
-        books:book_id (id, title, author)
+        books!cart_book_id_fkey (id, title, author)
       `)
       .eq('user_id', user.id);
 
     if (error) {
-      console.error('Cart fetch error:', error.message, error.details);
+      console.error('Cart fetch error:', error.message, error.details, error.hint);
       errorMessage = 'Savatcha ma\'lumotlarini olishda xatolik yuz berdi.';
       throw new Error(error.message);
     }
 
-    console.log('Raw Supabase data:', JSON.stringify(data, null, 2));
-    cartItems = (data || []).map((item: CartRow) => { // `item` ga tip qo'shildi
+    console.log('Raw Supabase data:', JSON.stringify(data, null, 2)); // Debug log
+    cartItems = (data || []).map((item: CartRow) => {
       if (!item.books || item.books.length === 0) {
         console.warn(`No book data for cart item ${item.id}, book_id: ${item.book_id}`);
         return null;
@@ -69,7 +69,7 @@ export default async function CartPage() {
       };
     }).filter((item): item is CartItem => item !== null);
 
-    console.log('Cart fetch result:', { itemCount: cartItems.length });
+    console.log('Cart fetch result:', { itemCount: cartItems.length }); // Debug log
   } catch (err) {
     console.error('Cart processing error:', err);
     errorMessage = 'Savatcha ma\'lumotlarini qayta ishlashda xatolik yuz berdi.';
