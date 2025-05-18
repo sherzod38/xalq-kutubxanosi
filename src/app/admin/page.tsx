@@ -109,12 +109,22 @@ export default async function AdminPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Telefon raqam</label>
-              <input
-                type="number"
-                name="phone_number"
-                required
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
-              />
+              <div className="flex">
+                <span className="inline-flex items-center px-3 rounded-l border border-r-0 border-gray-300 bg-gray-100 text-gray-600 select-none">
+                  +998
+                </span>
+                <input
+                  type="text"
+                  name="phone_number"
+                  pattern="\d{9}"
+                  maxLength={9}
+                  minLength={9}
+                  required
+                  placeholder="901234567"
+                  className="mt-0 w-full px-3 py-2 border border-gray-300 rounded-r focus:outline-none"
+                />
+              </div>
+              <span className="text-xs text-gray-500">Masalan: 901234567</span>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Viloyat</label>
