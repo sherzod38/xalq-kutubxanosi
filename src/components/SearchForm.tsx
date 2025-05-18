@@ -68,11 +68,11 @@ export default function SearchForm() {
           placeholder="Kitob nomi yoki muallif bo‘yicha izlash..."
           value={value}
           onChange={e => setValue(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs md:text-base"
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-2 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs md:text-base"
         >
           Qidirish
         </button>
