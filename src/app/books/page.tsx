@@ -15,11 +15,7 @@ interface Book {
   updated_at?: string; // Supabase jadvalidagi umumiy maydon
 }
 
-interface BooksPageProps {
-  searchParams?: { q?: string };
-}
-
-export default async function BooksPage({ searchParams }: BooksPageProps) {
+export default async function BooksPage({ searchParams }: any) {
   // Qidiruv so‘rovi
   const q = searchParams?.q || '';
   const supabase = await createSupabaseServerClient();
