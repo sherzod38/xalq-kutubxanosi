@@ -15,7 +15,7 @@ interface Book {
 interface CartRow {
   id: string;
   book_id: string;
-  books: Book[] | null;
+  books: Book[] | null; // Massiv sifatida o'zgartirildi
 }
 
 interface CartItem {
@@ -38,6 +38,7 @@ export default async function CartPage() {
     };
   }
 
+  console.log('Current user ID:', user.id); // Debug log
   let cartItems: CartItem[] = [];
   let errorMessage: string | null = null;
 
@@ -65,7 +66,7 @@ export default async function CartPage() {
       }
       return {
         id: item.id,
-        book: item.books[0],
+        book: item.books[0], // Birinchi elementni olamiz
       };
     }).filter((item): item is CartItem => item !== null);
 
