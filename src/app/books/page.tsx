@@ -3,7 +3,6 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 import Link from 'next/link';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Suspense } from 'react';
-import SearchForm from './SearchForm';
 
 // Book interfeysi
 interface Book {
@@ -15,26 +14,9 @@ interface Book {
   updated_at?: string; // Supabase jadvalidagi umumiy maydon
 }
 
-export default async function BooksPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: undefined | string | string[] };
-}) {
-  // Qidiruv so‘rovi
-  const q =
-    typeof searchParams?.q === "string"
-      ? searchParams.q
-      : Array.isArray(searchParams?.q)
-      ? searchParams.q[0]
-      : "";
+export default async function BooksPage() {
   const supabase = await createSupabaseServerClient();
-
-  let query = supabase.from('books').select('*');
-  if (q) {
-    // title yoki author bo‘yicha qidiruv
-    query = query.or(`title.ilike.%${q}%,author.ilike.%${q}%`);
-  }
-  const { data: books, error } = await query;
+  const { data: books, error } = await supabase.from('books').select('*');
 
   if (error) {
     throw new Error(`Books fetch failed: ${error.message}`);
@@ -45,7 +27,6 @@ export default async function BooksPage({
       <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
         <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
           <h1 className="text-2xl font-bold mb-4">Kitoblar</h1>
-          <SearchForm defaultValue={q} />
           {(!books || books.length === 0) ? (
             <p>Kitoblar topilmadi.</p>
           ) : (
