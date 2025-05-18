@@ -15,9 +15,13 @@ interface Book {
   updated_at?: string; // Supabase jadvalidagi umumiy maydon
 }
 
-export default async function BooksPage({ searchParams }: any) {
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
   // Qidiruv so‘rovi
-  const q = searchParams?.q || '';
+  const q = typeof searchParams?.q === "string" ? searchParams.q : Array.isArray(searchParams?.q) ? searchParams?.q[0] : "";
   const supabase = await createSupabaseServerClient();
 
   let query = supabase.from('books').select('*');
