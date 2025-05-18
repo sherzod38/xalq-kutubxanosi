@@ -1,29 +1,38 @@
-// app/login/page.tsx
-'use client'; // Client komponent sifatida belgilaymiz
+'use client';
 
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { handleLogin } from '@/app/actions/auth'; // Server Action ni import qilamiz
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
-  const searchParams = useSearchParams();
+export default function RegisterPage() {
+  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const error = searchParams.get('error');
-    setErrorMessage(error ? decodeURIComponent(error) : null);
-  }, [searchParams]);
-
-  async function onSubmit(formData: FormData) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
     try {
-      await handleLogin(formData);
-      // Agar handleLogin muvaffaqiyatli bo'lsa, u redirect qiladi
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (res.ok) {
+        router.push('/login?success=1');
+      } else {
+        const data = await res.json();
+        setErrorMessage(data.error || 'Ro‘yxatdan o‘tishda xatolik yuz berdi');
+      }
     } catch (error) {
-      console.error('Login xatosi:', error);
-      setErrorMessage('Login jarayonida xatolik yuz berdi');
+      setErrorMessage('Ro‘yxatdan o‘tishda xatolik yuz berdi');
     } finally {
       setIsLoading(false);
     }
@@ -32,13 +41,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Tizimga Kirish</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Ro‘yxatdan o‘tish</h1>
         {errorMessage && (
           <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
             {errorMessage}
           </div>
         )}
-        <form action={onSubmit} className="space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -70,16 +79,13 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400"
           >
-            {isLoading ? 'Kirish...' : 'Kirish'}
+            {isLoading ? "Ro‘yxatdan o‘tilmoqda..." : "Ro‘yxatdan o‘tish"}
           </button>
         </form>
         <div className="mt-4 text-center">
-          <span className="text-gray-600">Akkauntingiz yo‘qmi?</span>
-          <Link
-            href="/register"
-            className="ml-2 text-blue-600 hover:underline"
-          >
-            // Login sahifasiga ro‘yxatdan o‘tish (registratsiya) uchun link qo‘shib berdim. Endi foydalanuvchi “Ro‘yxatdan o‘tish” tugmasi orqali `/register` sahifasiga o‘tishi mumkin bo‘ladi.
+          <span className="text-gray-600">Akkauntingiz bormi?</span>
+          <Link href="/login" className="ml-2 text-blue-600 hover:underline">
+            Kirish
           </Link>
         </div>
       </div>
