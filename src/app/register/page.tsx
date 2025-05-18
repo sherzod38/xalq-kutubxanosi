@@ -31,7 +31,7 @@ export default function RegisterPage() {
         const data = await res.json();
         setErrorMessage(data.error || 'Ro‘yxatdan o‘tishda xatolik yuz berdi');
       }
-    } catch (error) {
+    } catch {
       setErrorMessage('Ro‘yxatdan o‘tishda xatolik yuz berdi');
     } finally {
       setIsLoading(false);

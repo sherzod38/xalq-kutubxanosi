@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Serverda xatolik yuz berdi" }, { status: 500 });
   }
 }

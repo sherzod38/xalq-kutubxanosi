@@ -79,7 +79,7 @@ export default function LoginPage() {
             href="/register"
             className="ml-2 text-blue-600 hover:underline"
           >
-            // Login sahifasiga ro‘yxatdan o‘tish (registratsiya) uchun link qo‘shib berdim. Endi foydalanuvchi “Ro‘yxatdan o‘tish” tugmasi orqali `/register` sahifasiga o‘tishi mumkin bo‘ladi.
+            Ro‘yxatdan o‘tish
           </Link>
         </div>
       </div>
