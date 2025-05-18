@@ -33,12 +33,12 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Admin Panel</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Mening Sahifam.</h1>
         <div className="bg-blue-50 p-4 rounded-lg">
           <p className="text-lg text-gray-700">
             Xush kelibsiz, <span className="font-semibold text-blue-600">{user.email}</span>!
           </p>
-          <p className="text-gray-600 mt-2">Bu yerda tizimni boshqarishingiz mumkin.</p>
+          <p className="text-gray-600 mt-2">Bu yerda tizimga kitob qo`sha olasiz va qo`shgan kitoblaringiz bo'lsa uni o`chira olasiz.</p>
         </div>
         <div className="mt-6">
           <Link
