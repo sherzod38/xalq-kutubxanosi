@@ -10,8 +10,6 @@ import { useState } from 'react';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Supabase bilan ishlash uchun server component bo'lsa, uni prop orqali uzatish mumkin.
-  // Bu yerda user ni har doim mavjud deb qoldirdim, agar kerak bo'lsa, uni prop orqali uzating.
   // const supabase = await createSupabaseServerClient();
   // const { data: { user } } = await supabase.auth.getUser();
   const user = undefined; // yoki prop orqali uzating
@@ -48,11 +46,19 @@ export default function Navbar() {
           >
             Kitoblar
           </Link>
+          {/* Admin linki: faqat desktopda ko‘rinadi */}
+          <Link
+            href="/admin"
+            className="hidden md:block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+          >
+            Admin
+          </Link>
           {user ? (
             <>
+              {/* Admin linki: faqat mobil menyuda ko‘rinadi */}
               <Link
                 href="/admin"
-                className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+                className="block md:hidden text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
               >
                 Admin
               </Link>
