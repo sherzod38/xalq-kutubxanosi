@@ -11,10 +11,13 @@ export default function SearchForm() {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
-  // Debounce funksiyasi
-  const debounce = (func: (...args: any[]) => void, delay: number) => {
+  // Debounce funksiyasi generic tur bilan
+  const debounce = <T extends unknown[]>(
+    func: (...args: T) => void,
+    delay: number
+  ) => {
     let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (...args: T) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => func(...args), delay);
     };
@@ -30,8 +33,7 @@ export default function SearchForm() {
       const { data, error } = await supabase
         .from('books')
         .select('id, title, author')
-        .ilike('title', `%${query}%`)
-        .ilike('author', `%${query}%`)
+        .or(`title.ilike.%${query}%,author.ilike.%${query}%`) // ilike ni or bilan birlashtiramiz
         .limit(5); // Maksimum 5 ta taklif
       if (error) console.error('Search error:', error.message);
       else setSuggestions(data || []);
@@ -40,7 +42,7 @@ export default function SearchForm() {
   );
 
   // Debounce bilan qidiruvni ishga tushirish
-  const debouncedSearch = debounce(searchBooks, 300);
+  const debouncedSearch = debounce<[string]>(searchBooks, 300);
 
   useEffect(() => {
     debouncedSearch(value);
