@@ -46,22 +46,15 @@ export default function Navbar() {
           >
             Kitoblar
           </Link>
-          {/* Admin linki: faqat desktopda ko‘rinadi */}
+          {/* Admin linki: har doim ko‘rinadi, mobilda ham menyu ochilganda chiqadi */}
           <Link
             href="/admin"
-            className="hidden md:block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+            className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
           >
             Admin
           </Link>
           {user ? (
             <>
-              {/* Admin linki: faqat mobil menyuda ko‘rinadi */}
-              <Link
-                href="/admin"
-                className="block md:hidden text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
-              >
-                Admin
-              </Link>
               <form action="/auth/signout" method="post" className="block">
                 <Button variant="outline" size="sm" className="flex items-center gap-2 w-full">
                   <LogOut className="w-4 h-4" />
