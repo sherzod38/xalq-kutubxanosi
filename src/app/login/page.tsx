@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client'; // Client komponent sifatida belgilaymiz
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { handleLogin } from '@/app/actions/auth'; // Server Action ni import qilamiz
 
