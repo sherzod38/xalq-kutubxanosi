@@ -110,7 +110,7 @@ export default async function AdminPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700">Telefon raqam</label>
               <input
-                type="text"
+                type="number"
                 name="phone_number"
                 required
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
