@@ -1,12 +1,11 @@
-import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Trash2 } from "lucide-react";
+import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Suspense } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Trash2 } from 'lucide-react';
 
-// Supabase jadvallari uchun interfeyslar
 interface Book {
   id: string;
   title: string;
@@ -16,104 +15,92 @@ interface Book {
 interface CartRow {
   id: string;
   book_id: string;
-  books: Book[] | null; // Massiv yoki null
+  books: Book[] | null;
 }
 
-// CartItem interfeysi
 interface CartItem {
   id: string;
   book: Book;
 }
 
 export default async function CartPage() {
-  console.log("CartPage rendering started");
-  const supabase = await createSupabaseServerClient();
+  console.log('CartPage rendering started');
+  const supabase = await createSupabaseServerClient(); // `await` qo'shildi
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  if (authError) {
-    console.error("Auth error:", authError.message);
+  if (authError || !user) {
+    console.error('Auth error:', authError?.message || 'User not authenticated');
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
   }
 
   let cartItems: CartItem[] = [];
   let errorMessage: string | null = null;
 
-  if (user) {
-    try {
-      const { data, error } = await supabase
-        .from("cart")
-        .select(`
-          id,
-          book_id,
-          books!cart_book_id_fkey (id, title, author)
-        `)
-        .eq("user_id", user.id);
+  try {
+    const { data, error } = await supabase
+      .from('cart')
+      .select(`
+        id,
+        book_id,
+        books:book_id (id, title, author)
+      `)
+      .eq('user_id', user.id);
 
-      if (error) {
-        console.error("Cart fetch error:", error.message, error.details, error.hint);
-        errorMessage = "Savatcha ma'lumotlarini olishda xatolik yuz berdi.";
-        throw new Error(`Cart fetch failed: ${error.message}`);
-      }
-
-      console.log("Raw Supabase data:", JSON.stringify(data, null, 2));
-
-      // So'rov natijasini CartItem[] ga aylantirish
-      cartItems = (data || []).map((item: CartRow) => {
-        if (!item.books || item.books.length === 0) {
-          console.warn(`No book data for cart item ${item.id}, book_id: ${item.book_id}`);
-          return null; // Null elementlarni keyin filter qilamiz
-        }
-        return {
-          id: item.id,
-          book: {
-            id: item.books[0].id,
-            title: item.books[0].title,
-            author: item.books[0].author,
-          },
-        };
-      }).filter((item): item is CartItem => item !== null); // Null elementlarni olib tashlash
-
-      console.log("Cart fetch result:", { itemCount: cartItems.length });
-    } catch (err) {
-      console.error("Cart processing error:", err);
-      errorMessage = "Savatcha ma'lumotlarini qayta ishlashda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.";
+    if (error) {
+      console.error('Cart fetch error:', error.message, error.details);
+      errorMessage = 'Savatcha ma\'lumotlarini olishda xatolik yuz berdi.';
+      throw new Error(error.message);
     }
+
+    console.log('Raw Supabase data:', JSON.stringify(data, null, 2));
+    cartItems = (data || []).map((item: CartRow) => { // `item` ga tip qo'shildi
+      if (!item.books || item.books.length === 0) {
+        console.warn(`No book data for cart item ${item.id}, book_id: ${item.book_id}`);
+        return null;
+      }
+      return {
+        id: item.id,
+        book: item.books[0],
+      };
+    }).filter((item): item is CartItem => item !== null);
+
+    console.log('Cart fetch result:', { itemCount: cartItems.length });
+  } catch (err) {
+    console.error('Cart processing error:', err);
+    errorMessage = 'Savatcha ma\'lumotlarini qayta ishlashda xatolik yuz berdi.';
   }
 
-  console.log("CartPage rendering completed");
+  console.log('CartPage rendering completed');
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
+      <Suspense fallback={<div>Yuklanmoqda...</div>}>
         <main className="flex min-h-screen flex-col items-center bg-gray-100 p-4">
           <div className="w-full max-w-4xl">
             <Link href="/" className="text-blue-500 hover:underline mb-4 inline-block">
               ← Bosh sahifaga qaytish
             </Link>
             <h1 className="text-3xl font-bold mb-6">Savatcha</h1>
-            {!user ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchani ko`rish uchun iltimos, tizimga kiring.</p>
-                  <Link href="/login">
-                    <Button className="mt-4">Kirish</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ) : errorMessage ? (
+            {errorMessage ? (
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-red-600">{errorMessage}</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko`rish</Button>
+                    <Button className="mt-4">Kitoblarni ko‘rish</Button>
                   </Link>
                 </CardContent>
               </Card>
             ) : cartItems.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-gray-600">Savatchangiz bo`sh.</p>
+                  <p className="text-gray-600">Savatchangiz bo‘sh.</p>
                   <Link href="/books">
-                    <Button className="mt-4">Kitoblarni ko`rish</Button>
+                    <Button className="mt-4">Kitoblarni ko‘rish</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -131,7 +118,7 @@ export default async function CartPage() {
                       <form action={`/api/cart/delete/${item.id}`} method="POST">
                         <Button variant="destructive" size="sm">
                           <Trash2 className="w-4 h-4 mr-2" />
-                          O`chirish
+                          O‘chirish
                         </Button>
                       </form>
                     </CardContent>
