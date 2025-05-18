@@ -23,12 +23,6 @@ export default async function Navbar() {
           >
             Kitoblar
           </Link>
-          <Link
-            href="/cart"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Savat
-          </Link>
           {user ? (
             <>
               <Link

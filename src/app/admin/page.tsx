@@ -1,133 +1,142 @@
+// app/admin/page.tsx
+import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { redirect } from 'next/navigation';
+import { addBook } from './actions';
 
-// src/app/admin/page.tsx
-import { Suspense } from "react";
-import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { addBook } from "./actions";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-
-async function AdminContent() {
-  console.log("AdminPage rendering started");
+export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
-  
-  // Sessiyani tekshirish
   const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError) {
-    console.error("Admin getSession error:", sessionError.message);
-    redirect("/login");
-  }
-  if (session) {
-    await supabase.auth.refreshSession();
+
+  if (sessionError || !session) {
+    console.error('Admin getSession error:', sessionError?.message || 'No session');
+    redirect('/login');
   }
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (!user || authError) {
-    console.error("Admin getUser error:", authError?.message || "No user found");
-    redirect("/login");
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    console.error('Admin getUser error:', userError?.message || 'No user');
+    redirect('/login');
   }
 
-  console.log("AdminPage rendering completed, user:", user.id);
+  // Foydalanuvchining kitoblarini olish
+  const { data: books, error: booksError } = await supabase
+    .from('books')
+    .select('*')
+    .eq('created_by', user.id);
+
+  // deleteBook actionini import qilamiz
+  // importni yuqoriga qo‘shing:
+  // import { deleteBook } from '../books/actions';
+
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 bg-gray-100">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Yangi kitob qo‘shish</h1>
-        <form action={addBook} className="w-full max-w-md space-y-4 animate-none">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Kitob nomi
-            </label>
-            <Input
-              id="title"
-              name="title"
-              type="text"
-              placeholder="Kitob nomini kiriting"
-              required
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
-              Muallif
-            </label>
-            <Input
-              id="author"
-              name="author"
-              type="text"
-              placeholder="Muallif nomini kiriting"
-              required
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Tavsif
-            </label>
-            <Input
-              id="description"
-              name="description"
-              type="text"
-              placeholder="Kitob tavsifini kiriting"
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-              Telefon raqami
-            </label>
-            <Input
-              id="phone_number"
-              name="phone_number"
-              type="text"
-              placeholder="Telefon raqamini kiriting"
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-1">
-              Viloyat
-            </label>
-            <Input
-              id="region"
-              name="region"
-              type="text"
-              placeholder="Viloyatni kiriting"
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1">
-              Tuman
-            </label>
-            <Input
-              id="district"
-              name="district"
-              type="text"
-              placeholder="Tumanni kiriting"
-              className="w-full"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 transition-none"
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Admin Panel</h1>
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <p className="text-lg text-gray-700">
+            Xush kelibsiz, <span className="font-semibold text-blue-600">{user.email}</span>!
+          </p>
+          <p className="text-gray-600 mt-2">Bu yerda tizimni boshqarishingiz mumkin.</p>
+        </div>
+        <div className="mt-6">
+          <a
+            href="/"
+            className="inline-block bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200"
           >
-            Kitob qo‘shish
-          </Button>
-        </form>
+            Asosiy Sahifaga Qaytish
+          </a>
+        </div>
+        {/* Foydalanuvchining kitoblari ro‘yxati */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold mb-4">Mening kitoblarim</h2>
+          {booksError && (
+            <div className="text-red-600 mb-4">Kitoblarni olishda xatolik: {booksError.message}</div>
+          )}
+          {(!books || books.length === 0) ? (
+            <div className="text-gray-600">Sizda hali kitoblar yo‘q.</div>
+          ) : (
+            <ul className="space-y-4 mb-8">
+              {books.map((book: any) => (
+                <li key={book.id} className="flex justify-between items-center bg-gray-100 p-4 rounded">
+                  <div>
+                    <div className="font-semibold">{book.title}</div>
+                    <div className="text-sm text-gray-600">{book.author}</div>
+                  </div>
+                  <form action={require('../books/actions').deleteBook.bind(null, book.id)} method="post">
+                    <button
+                      type="submit"
+                      className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 transition-colors"
+                    >
+                      O‘chirish
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        {/* Kitob qo'shish formasi */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold mb-4">Yangi kitob qo‘shish</h2>
+          <form action={addBook} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Kitob nomi</label>
+              <input
+                type="text"
+                name="title"
+                required
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Muallif</label>
+              <input
+                type="text"
+                name="author"
+                required
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tavsif</label>
+              <textarea
+                name="description"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Telefon raqam</label>
+              <input
+                type="text"
+                name="phone_number"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Viloyat</label>
+              <input
+                type="text"
+                name="region"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tuman</label>
+              <input
+                type="text"
+                name="district"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Qo‘shish
+            </button>
+          </form>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
-
-export default function AdminPage() {
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
-        <AdminContent />
-      </Suspense>
-    </ErrorBoundary>
-  );
-}
-
-export const dynamic = "force-dynamic";

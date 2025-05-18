@@ -1,133 +1,79 @@
+// app/login/page.tsx
+'use client'; // Client komponent sifatida belgilaymiz
 
-// src/app/login/page.tsx
-"use client";
-
-import { Suspense, useState } from "react";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { login, signup } from "./actions";
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { handleLogin } from '@/app/actions/auth'; // Server Action ni import qilamiz
 
 export default function LoginPage() {
-  console.log('LoginPage rendering started');
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [signupError, setSignupError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleLogin(formData: FormData) {
-    const result = await login(formData);
-    if (result?.error) {
-      setLoginError(result.error);
-    }
-  }
+  useEffect(() => {
+    const error = searchParams.get('error');
+    setErrorMessage(error ? decodeURIComponent(error) : null);
+  }, [searchParams]);
 
-  async function handleSignup(formData: FormData) {
-    const result = await signup(formData);
-    if (result?.error) {
-      setSignupError(result.error);
+  async function onSubmit(formData: FormData) {
+    setIsLoading(true);
+    try {
+      await handleLogin(formData);
+      // Agar handleLogin muvaffaqiyatli bo'lsa, u redirect qiladi
+    } catch (error) {
+      console.error('Login xatosi:', error);
+      setErrorMessage('Login jarayonida xatolik yuz berdi');
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-xl bg-gray-100">Yuklanmoqda...</div>}>
-        <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-          <div className="w-full max-w-md">
-            <h1 className="text-2xl font-bold mb-6 text-center">Xalq Kutubxonasi</h1>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Kirish</TabsTrigger>
-                <TabsTrigger value="signup">Ro‘yxatdan o‘tish</TabsTrigger>
-              </TabsList>
-              <TabsContent value="login">
-                <form action={handleLogin} className="space-y-4">
-                  <div>
-                    <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <Input
-                      id="login-email"
-                      name="email"
-                      type="email"
-                      placeholder="Email kiriting"
-                      required
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
-                      Parol
-                    </label>
-                    <Input
-                      id="login-password"
-                      name="password"
-                      type="password"
-                      placeholder="Parol kiriting"
-                      required
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                  {loginError && (
-                    <Alert variant="destructive">
-                      <AlertTitle>Xato</AlertTitle>
-                      <AlertDescription>{loginError}</AlertDescription>
-                    </Alert>
-                  )}
-                  <Button type="submit" className="w-full">
-                    Kirish
-                  </Button>
-                </form>
-              </TabsContent>
-              <TabsContent value="signup">
-                <form action={handleSignup} className="space-y-4">
-                  <div>
-                    <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <Input
-                      id="signup-email"
-                      name="email"
-                      type="email"
-                      placeholder="Email kiriting"
-                      required
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
-                      Parol
-                    </label>
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type="password"
-                      placeholder="Parol kiriting"
-                      required
-                      className="mt-1 w-full"
-                    />
-                  </div>
-                  {signupError && (
-                    <Alert variant="destructive">
-                      <AlertTitle>Xato</AlertTitle>
-                      <AlertDescription>{signupError}</AlertDescription>
-                    </Alert>
-                  )}
-                  <Button type="submit" className="w-full">
-                    Ro‘yxatdan o‘tish
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-            <Alert className="mt-4">
-              <AlertTitle>Diqqat</AlertTitle>
-              <AlertDescription>
-                Ro‘yxatdan o‘tish yoki kirish uchun to‘g‘ri email va parol kiriting.
-              </AlertDescription>
-            </Alert>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Tizimga Kirish</h1>
+        {errorMessage && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
+            {errorMessage}
           </div>
-        </main>
-      </Suspense>
-    </ErrorBoundary>
+        )}
+        <form action={onSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="Email kiriting"
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Parol
+            </label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Parol kiriting"
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400"
+          >
+            {isLoading ? 'Kirish...' : 'Kirish'}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

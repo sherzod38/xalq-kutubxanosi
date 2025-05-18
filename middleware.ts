@@ -1,54 +1,75 @@
-
 // middleware.ts
-import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  const supabase = await createSupabaseServerClient();
+  const res = NextResponse.next();
 
-  // Sessiyani tekshirish
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          res.cookies.set(name, value, {
+            ...options,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 1 hafta
+            path: '/',
+          });
+        },
+        remove(name: string) {
+          res.cookies.delete(name);
+        },
+      },
+    }
+  );
+
   const { data: { session }, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) {
-    console.error("Middleware getSession error:", sessionError);
+    console.error('Middleware getSession error:', sessionError?.message || 'No session');
   }
+
   if (session) {
-    await supabase.auth.refreshSession();
+    const { data: { session: updatedSession }, error: setSessionError } = await supabase.auth.setSession({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+    });
+    if (setSessionError) {
+      console.error('Middleware setSession error:', setSessionError.message);
+    } else if (updatedSession) {
+      console.log('Middleware: Session updated successfully');
+      const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL!.split('.')[0].replace('https://', '');
+      res.cookies.set(`sb-${projectId}-access-token`, updatedSession.access_token, {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
+      res.cookies.set(`sb-${projectId}-refresh-token`, updatedSession.refresh_token, {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
+    }
   }
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) {
-    console.error("Middleware getUser error:", error);
-  }
-
-  // Faqat /admin sahifasi uchun autentifikatsiya tekshiruvi
-  if (req.nextUrl.pathname.startsWith("/admin") && !user) {
-    const redirectUrl = new URL("/login", req.url);
-    redirectUrl.searchParams.set("redirected", "true");
-    redirectUrl.searchParams.set("from", req.nextUrl.pathname);
+  if (req.nextUrl.pathname.startsWith('/admin') && !session) {
+    const redirectUrl = new URL('/login', req.url);
+    redirectUrl.searchParams.set('redirected', 'true');
+    redirectUrl.searchParams.set('from', req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Boshqa sahifalar uchun hech qanday cheklov yo‘q
-  const response = NextResponse.next();
-  if (session) {
-    response.cookies.set("sb-access-token", session.access_token, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-    response.cookies.set("sb-refresh-token", session.refresh_token, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    });
-  }
-
-  return response;
+  return res;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"], // Faqat /admin uchun ishlaydi
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
