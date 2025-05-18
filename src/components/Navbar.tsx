@@ -36,7 +36,7 @@ export default function Navbar() {
         {/* Qidiruv formasi */}
         <div className="w-full order-3 md:order-none md:w-auto md:flex-1 md:flex md:justify-center mt-4 md:mt-0">
           <div className="w-full flex justify-center">
-            <div className="w-full max-w-[180px] md:max-w-md">
+            <div className="w-full max-w-[180px] md:max-w-md flex items-center justify-center">
               <SearchForm />
             </div>
           </div>
