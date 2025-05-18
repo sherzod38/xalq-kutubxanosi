@@ -35,7 +35,11 @@ export default function Navbar() {
 
         {/* Qidiruv formasi */}
         <div className="w-full order-3 md:order-none md:w-auto md:flex-1 md:flex md:justify-center mt-4 md:mt-0">
-          <SearchForm />
+          <div className="w-full flex justify-center">
+            <div className="w-full max-w-xs md:max-w-md">
+              <SearchForm />
+            </div>
+          </div>
         </div>
 
         {/* Navigatsiya linklari */}
