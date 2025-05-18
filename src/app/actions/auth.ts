@@ -18,7 +18,7 @@ export async function handleLogin(formData: FormData) {
   await supabase.auth.signOut();
 
   // Keyin login qilamiz
-  const { error, data } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });

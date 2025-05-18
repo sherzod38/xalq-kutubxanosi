@@ -2,6 +2,8 @@
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { addBook } from './actions';
+import { deleteBook } from '../books/actions'; // <-- to‘g‘ri import
+import { Link } from 'lucide-react';
 
 export default async function AdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -39,12 +41,12 @@ export default async function AdminPage() {
           <p className="text-gray-600 mt-2">Bu yerda tizimni boshqarishingiz mumkin.</p>
         </div>
         <div className="mt-6">
-          <a
+          <Link
             href="/"
             className="inline-block bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200"
           >
             Asosiy Sahifaga Qaytish
-          </a>
+          </Link>
         </div>
         {/* Foydalanuvchining kitoblari ro‘yxati */}
         <div className="mt-10">
@@ -56,13 +58,13 @@ export default async function AdminPage() {
             <div className="text-gray-600">Sizda hali kitoblar yo‘q.</div>
           ) : (
             <ul className="space-y-4 mb-8">
-              {books.map((book: any) => (
+              {books.map((book: Book) => (
                 <li key={book.id} className="flex justify-between items-center bg-gray-100 p-4 rounded">
                   <div>
                     <div className="font-semibold">{book.title}</div>
                     <div className="text-sm text-gray-600">{book.author}</div>
                   </div>
-                  <form action={require('../books/actions').deleteBook.bind(null, book.id)} method="post">
+                  <form action={deleteBook.bind(null, book.id)} method="post">
                     <button
                       type="submit"
                       className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 transition-colors"
@@ -139,4 +141,17 @@ export default async function AdminPage() {
       </div>
     </div>
   );
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  description?: string;
+  phone_number?: string;
+  region?: string;
+  district?: string;
+  created_by: string;
+  created_at?: string;
+  updated_at?: string;
 }

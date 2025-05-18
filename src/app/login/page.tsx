@@ -7,7 +7,6 @@ import { handleLogin } from '@/app/actions/auth'; // Server Action ni import qil
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
