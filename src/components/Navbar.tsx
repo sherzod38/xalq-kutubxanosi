@@ -1,5 +1,7 @@
+"use client"
+
 import Link from 'next/link';
-import { createSupabaseServerClient } from '@/utils/supabase/server';
+// import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
