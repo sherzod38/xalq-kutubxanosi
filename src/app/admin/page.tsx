@@ -103,6 +103,7 @@ export default async function AdminPage() {
               <label className="block text-sm font-medium text-gray-700">Tavsif</label>
               <textarea
                 name="description"
+                required
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
               />
             </div>
@@ -111,6 +112,7 @@ export default async function AdminPage() {
               <input
                 type="text"
                 name="phone_number"
+                required
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
               />
             </div>
@@ -119,6 +121,7 @@ export default async function AdminPage() {
               <input
                 type="text"
                 name="region"
+                required
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
               />
             </div>
@@ -127,6 +130,7 @@ export default async function AdminPage() {
               <input
                 type="text"
                 name="district"
+                required
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded"
               />
             </div>
