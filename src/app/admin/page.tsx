@@ -38,7 +38,7 @@ export default async function AdminPage() {
           <p className="text-lg text-gray-700">
             Xush kelibsiz, <span className="font-semibold text-blue-600">{user.email}</span>!
           </p>
-          <p className="text-gray-600 mt-2">Bu yerda tizimga kitob qo`sha olasiz va qo`shgan kitoblaringiz bo'lsa uni o`chira olasiz.</p>
+          <p className="text-gray-600 mt-2">Bu yerda tizimga kitob qo`sha olasiz va qo`shgan kitoblaringiz bo`lsa uni o`chira olasiz.</p>
         </div>
         <div className="mt-6">
           <Link
