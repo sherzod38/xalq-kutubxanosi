@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
+import SearchForm from './SearchForm';
 
 export default async function Navbar() {
   const supabase = await createSupabaseServerClient();
@@ -14,6 +15,11 @@ export default async function Navbar() {
         <Link href="/" className="text-2xl font-bold text-gray-800">
           Xalq Kutubxonasi
         </Link>
+
+        {/* Qidiruv formasi */}
+        <div className="flex-1 flex justify-center">
+          <SearchForm />
+        </div>
 
         {/* Navigatsiya linklari */}
         <div className="flex items-center space-x-4">
