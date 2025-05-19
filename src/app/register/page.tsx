@@ -26,7 +26,7 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        router.push('/login?success=1');
+        router.push('/admin');
       } else {
         const data = await res.json();
         setErrorMessage(data.error || 'Ro‘yxatdan o‘tishda xatolik yuz berdi');
