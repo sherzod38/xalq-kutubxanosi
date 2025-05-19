@@ -1,33 +1,19 @@
 // app/login/page.tsx
-'use client'; // Client komponent sifatida belgilaymiz
+'use client';
 
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { handleLogin } from '@/app/actions/auth'; // Server Action ni import qilamiz
+import { login } from './actions';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const error = searchParams.get('error');
     setErrorMessage(error ? decodeURIComponent(error) : null);
   }, [searchParams]);
-
-  async function onSubmit(formData: FormData) {
-    setIsLoading(true);
-    try {
-      await handleLogin(formData);
-      // Agar handleLogin muvaffaqiyatli bo'lsa, u redirect qiladi
-    } catch (error) {
-      console.error('Login xatosi:', error);
-      setErrorMessage('Login jarayonida xatolik yuz berdi');
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -38,7 +24,7 @@ export default function LoginPage() {
             {errorMessage}
           </div>
         )}
-        <form action={onSubmit} className="space-y-6">
+        <form action={login} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -67,10 +53,9 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
-            {isLoading ? 'Kirish...' : 'Kirish'}
+            Kirish
           </button>
         </form>
         <div className="mt-4 text-center">
