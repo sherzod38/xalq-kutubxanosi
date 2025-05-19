@@ -1,18 +1,29 @@
 "use client"
 
 import Link from 'next/link';
-// import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClientComponentClient();
 
-  // const supabase = await createSupabaseServerClient();
-  // const { data: { user } } = await supabase.auth.getUser();
-  const user = undefined; // yoki prop orqali uzating
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, [supabase]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
@@ -50,7 +61,6 @@ export default function Navbar() {
           >
             Kitoblar
           </Link>
-          {/* Admin linki: har doim ko‘rinadi, mobilda ham menyu ochilganda chiqadi */}
           <Link
             href="/admin"
             className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
@@ -58,14 +68,15 @@ export default function Navbar() {
             Admin
           </Link>
           {user ? (
-            <>
-              <form action="/auth/signout" method="post" className="block">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 w-full">
-                  <LogOut className="w-4 h-4" />
-                  Chiqish
-                </Button>
-              </form>
-            </>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 w-full"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4" />
+              Chiqish
+            </Button>
           ) : (
             <Link href="/login" className="block">
               <Button size="sm" className="w-full">Kirish</Button>
