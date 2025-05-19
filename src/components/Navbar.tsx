@@ -6,10 +6,11 @@ import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { User } from '@supabase/supabase-js';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
