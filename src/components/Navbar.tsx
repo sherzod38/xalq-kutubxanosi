@@ -1,6 +1,8 @@
-"use client"
+// Navbar.tsx
+"use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Router uchun qo'shimcha import
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
@@ -12,18 +14,32 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
+  const router = useRouter(); // Router ni ishlatish uchun
 
+  // Foydalanuvchi holatini olish va real vaqt yangilanishlarni tinglash
   useEffect(() => {
+    // Dastlabki foydalanuvchi holatini olish
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
     };
     getUser();
+
+    // Autentifikatsiya holatidagi o'zgarishlarni tinglash
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Cleanup funksiyasi
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    window.location.reload();
+    setUser(null); // Foydalanuvchi holatini darhol yangilash
+    router.refresh(); // Sahifani qayta yuklash o'rniga yangilash
   };
 
   return (
