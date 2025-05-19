@@ -61,7 +61,8 @@ export default function SearchForm() {
   };
 
   return (
-    <div className="relative w-full max-w-md">
+    // <div className="relative w-full max-w-md"></div>
+    <div className="relative w-full max-w-xs md:max-w-md">
       <form onSubmit={handleSubmit} className="flex gap-2 w-full">
         <input
           type="text"
