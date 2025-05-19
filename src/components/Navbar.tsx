@@ -21,16 +21,12 @@ export default function Navbar() {
     };
     fetchUser();
 
-    // Auth holati o'zgarsa, userni yangilash
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
-    // TO‘G‘RI TOZALASH:
     return () => {
-      if (authListener && authListener.subscription && typeof authListener.subscription.unsubscribe === 'function') {
-        authListener.subscription.unsubscribe();
-      }
+      subscription?.unsubscribe();
     };
   }, [supabase]);
 
