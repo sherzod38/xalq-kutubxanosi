@@ -39,8 +39,7 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/login');
-    router.refresh(); // Sahifani yangilash orqali user state-ni to‘g‘ri yangilash
+    window.location.href = '/login'; // To‘liq reload
   };
 
   return (
