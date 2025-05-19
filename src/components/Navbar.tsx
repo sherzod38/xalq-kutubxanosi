@@ -9,9 +9,7 @@ import SearchForm from './SearchForm';
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
-// First install framer-motion: npm install framer-motion
-// @ts-ignore
-import { motion, AnimatePresence } from 'framer-motion'; // Animatsiya uchun
+import { motion, AnimatePresence } from 'framer-motion'; // To'g'ri import
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,7 +17,6 @@ export default function Navbar() {
   const supabase = createClientComponentClient();
   const router = useRouter();
 
-  // Foydalanuvchi holatini olish va real vaqt yangilanishlarni tinglash
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -39,19 +36,17 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/'); // Chiqishdan so‘ng bosh sahifaga yo‘naltirish
-    router.refresh(); // Sahifani yangilash
+    router.push('/');
+    router.refresh();
   };
 
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
       <div className="container mx-auto flex flex-wrap items-center justify-between">
-        {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-gray-800">
           Xalq Kutubxonasi
         </Link>
 
-        {/* Mobil menyu tugmasi */}
         <button
           className="md:hidden block text-gray-700 focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -62,7 +57,6 @@ export default function Navbar() {
           </svg>
         </button>
 
-        {/* Qidiruv formasi */}
         <div className="w-full order-3 md:order-none md:w-auto md:flex-1 md:flex md:justify-center mt-4 md:mt-0">
           <div className="w-full flex justify-center">
             <div className="w-full max-w-[180px] md:max-w-md flex items-center justify-center">
@@ -71,7 +65,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Navigatsiya linklari */}
         <div
           className={`w-full md:w-auto md:flex items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0 transition-all duration-300 ease-in-out ${
             menuOpen ? 'block opacity-100' : 'hidden opacity-0 md:block md:opacity-100'
