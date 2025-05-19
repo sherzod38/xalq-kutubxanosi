@@ -17,39 +17,33 @@ export async function handleLogin(formData: FormData) {
   // Avval mavjud sessiyani tozalaymiz
   await supabase.auth.signOut();
 
-  // Keyin login qilamiz
-  const { error } = await supabase.auth.signInWithPassword({
+  // Login qilamiz
+  const { data: { session }, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
-    console.error('Login error:', error.message);
-    return redirect('/login?error=' + encodeURIComponent(error.message));
+  if (error || !session) {
+    console.error('Login error:', error?.message || 'No session');
+    return redirect('/login?error=' + encodeURIComponent(error?.message || 'Login muvaffaqiyatsiz'));
   }
 
-  // Sessiyani tekshiramiz
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
-  if (sessionError || !session) {
-    console.error('Login session error:', sessionError?.message || 'No session');
-    return redirect('/login?error=' + encodeURIComponent('Login muvaffaqiyatli, lekin sessiya yaratilmadi'));
-  }
-
-  // Cookie'larni qo'lda o'rnatamiz - bu yerda await kerak emas
+  // Sessiyani yangilash va cookie'larni dinamik tarzda o‘rnatish
+  const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL!.split('.')[0].replace('https://', '');
   const cookieStore = await cookies();
-  cookieStore.set('sb-access-token', session.access_token, {
+
+  cookieStore.set(`sb-${projectId}-access-token`, session.access_token, {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 3600 // 1 soat
+    maxAge: 60 * 60 * 24 * 7 // 1 hafta
   });
-  
-  cookieStore.set('sb-refresh-token', session.refresh_token, {
+
+  cookieStore.set(`sb-${projectId}-refresh-token`, session.refresh_token, {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 7 * 24 * 3600 // 1 hafta
+    maxAge: 60 * 60 * 24 * 7 // 1 hafta
   });
 
   console.log('Login successful, redirecting to admin');
