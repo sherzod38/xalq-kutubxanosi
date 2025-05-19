@@ -40,7 +40,7 @@ export default function Navbar() {
     await supabase.auth.signOut();
     setUser(null);
     router.push('/login');
-    // window.location.reload(); // Buni olib tashlang!
+    router.refresh(); // Sahifani yangilash orqali user state-ni to‘g‘ri yangilash
   };
 
   return (
