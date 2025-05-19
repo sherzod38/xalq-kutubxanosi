@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   await supabase.auth.signOut();
 
   const response = NextResponse.json({ message: 'Logged out' });
-  response.cookies.delete('sb-access-token');
-  response.cookies.delete('sb-refresh-token');
+  response.cookies.delete(`sb-${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID}-access-token`);
+  response.cookies.delete(`sb-${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID}-refresh-token`);
   return response;
 }
