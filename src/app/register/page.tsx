@@ -84,7 +84,7 @@ export default function RegisterPage() {
         </form>
         <div className="mt-4 text-center">
           <span className="text-gray-600">Akkauntingiz bormi?</span>
-          <Link href="/admin" className="ml-2 text-blue-600 hover:underline">
+          <Link href="/login" className="ml-2 text-blue-600 hover:underline">
             Kirish
           </Link>
         </div>
