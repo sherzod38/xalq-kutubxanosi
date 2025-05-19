@@ -9,7 +9,7 @@ import SearchForm from './SearchForm';
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
-import { motion, AnimatePresence } from 'framer-motion'; // To'g'ri import
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,14 +17,26 @@ export default function Navbar() {
   const supabase = createClientComponentClient();
   const router = useRouter();
 
+  // Foydalanuvchi holatini olish va real vaqt yangilanishlarni tinglash
   useEffect(() => {
-    const getUser = async () => {
+    const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      console.log('Initial user fetch:', user); // Debug uchun
     };
-    getUser();
+    fetchUser();
 
+    // Sessiyani tekshirish
+    const fetchSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      console.log('Initial session fetch:', session?.user); // Debug uchun
+    };
+    fetchSession();
+
+    // Autentifikatsiya holatidagi o'zgarishlarni tinglash
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user); // Debug uchun
       setUser(session?.user ?? null);
     });
 
@@ -37,7 +49,7 @@ export default function Navbar() {
     await supabase.auth.signOut();
     setUser(null);
     router.push('/');
-    router.refresh();
+    window.location.reload(); // router.refresh() o'rniga to'liq reload
   };
 
   return (
