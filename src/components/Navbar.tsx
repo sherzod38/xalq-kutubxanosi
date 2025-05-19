@@ -66,6 +66,18 @@ export default function Navbar() {
         </div>
 
         <div className={`w-full md:w-auto md:flex items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0 ${menuOpen ? 'block' : 'hidden'} md:block`}>
+          {/* Tizimdan chiqish tugmasi faqat user kirganda ko‘rinadi */}
+          {user && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 w-full"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4" />
+              Tizimdan chiqish
+            </Button>
+          )}
           <Link
             href="/books"
             className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
@@ -78,17 +90,8 @@ export default function Navbar() {
           >
             Admin
           </Link>
-          {user ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 w-full"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4" />
-              Chiqish
-            </Button>
-          ) : (
+          {/* Kirish tugmasi faqat user yo‘q bo‘lsa ko‘rinadi */}
+          {!user && (
             <Link href="/login" className="block">
               <Button size="sm" className="w-full">Kirish</Button>
             </Link>
