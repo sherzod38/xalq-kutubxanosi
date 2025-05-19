@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
       console.log("Session user:", session.user.email);
     }
 
-    const protectedRoutes = ["/admin", "/books"];
+    const protectedRoutes = ["/admin"];
     const isProtectedRoute = protectedRoutes.some((route) =>
       req.nextUrl.pathname.startsWith(route)
     );
