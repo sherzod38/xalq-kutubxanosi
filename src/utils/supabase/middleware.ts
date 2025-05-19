@@ -30,22 +30,25 @@ export async function middleware(req: NextRequest) {
     // Sessiya mavjud bo'lsa, cookie'larni yangilaymiz
     if (session) {
       const response = NextResponse.next();
-      
-      // Cookie'larni o'rnatish
-      response.cookies.set("sb-access-token", session.access_token, {
+
+      // Dinamik projectId olish
+      const projectId = process.env.NEXT_PUBLIC_SUPABASE_URL!.split('.')[0].replace('https://', '');
+
+      // Cookie'larni dinamik nom bilan o'rnatish
+      response.cookies.set(`sb-${projectId}-access-token`, session.access_token, {
         path: "/",
         httpOnly: true,
         sameSite: "lax",
         maxAge: 3600 // 1 soat
       });
-      
-      response.cookies.set("sb-refresh-token", session.refresh_token, {
+
+      response.cookies.set(`sb-${projectId}-refresh-token`, session.refresh_token, {
         path: "/",
         httpOnly: true,
         sameSite: "lax",
         maxAge: 7 * 24 * 3600 // 1 hafta
       });
-      
+
       return response;
     }
 
