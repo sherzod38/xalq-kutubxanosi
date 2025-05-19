@@ -14,7 +14,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
-  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
