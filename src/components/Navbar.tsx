@@ -28,16 +28,19 @@ export default function Navbar() {
       setUser(session?.user ?? null);
     });
 
+    // TO‘G‘RI TOZALASH:
     return () => {
-      authListener.subscription.unsubscribe();
+      if (authListener && authListener.subscription && typeof authListener.subscription.unsubscribe === 'function') {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    router.push('/');
-    window.location.reload();
+    router.push('/login');
+    // window.location.reload(); // Buni olib tashlang!
   };
 
   return (
