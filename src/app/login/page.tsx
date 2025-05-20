@@ -28,19 +28,19 @@ export default function LoginPage() {
         )}
         {showAlert && (
           <Alert variant="default" className="mb-4">
-            <AlertTitle>Assalomu alaykum!</AlertTitle>
+            <AlertTitle>Xatolik!</AlertTitle>
             <AlertDescription>
-              Siz muaffaqiyatli tizimga kirdingiz. Endi siz kitob qo`sha olasiz.
+              Login yoki parolda xatolik bo‘ldi.
             </AlertDescription>
           </Alert>
         )}
         <form action={async (formData) => {
-          await login(formData);
-          setShowAlert(true);
-          setTimeout(() => {
-            setShowAlert(false);
+          const result = await login(formData);
+          if (result && typeof result === 'object' && 'error' in result && (result as { error: unknown }).error) {
+            setShowAlert(true);
+          } else {
             window.location.href = '/admin';
-          }, 3000);
+          }
         }} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
