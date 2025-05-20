@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 // import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 
@@ -14,7 +14,23 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
-  
+  // Foydalanuvchini tekshirish va auth o‘zgarishini kuzatish
+  useEffect(() => {
+    // Dastlabki foydalanuvchini olish
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    // Auth state o‘zgarsa, user-ni yangilash
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Tozalash
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
