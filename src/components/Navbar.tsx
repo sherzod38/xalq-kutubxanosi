@@ -56,15 +56,21 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
-      <div className="container mx-auto flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-gray-800">
+      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
+        <Link href="/" className="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
           Xalq Kutubxonasi
         </Link>
 
-        {/* O'ng tomon: qidiruv va tugmalar */}
-        <div className="flex items-center gap-2">
-          {/* Desktop uchun qidiruv va tugmalar */}
-          <div className="hidden md:flex items-center gap-2">
+        {/* SearchForm faqat mobilda ostida, desktopda yonida */}
+        <div className="w-full md:hidden flex justify-center mb-2">
+          <div className="w-full max-w-[220px] flex items-center justify-center">
+            <SearchForm />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          {/* Desktop uchun SearchForm va tugmalar */}
+          <div className="hidden md:flex items-center gap-2 w-full">
             <div className="max-w-[220px] md:max-w-md flex items-center">
               <SearchForm />
             </div>
@@ -134,9 +140,6 @@ export default function Navbar() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <div className="w-full flex items-center">
-              <SearchForm />
-            </div>
             <Link
               href="/books"
               className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
@@ -160,7 +163,7 @@ export default function Navbar() {
                 title="Tizimdan chiqish"
               >
                 <LogOut className="w-5 h-5" />
-                <span className="sr-only">Tizimdan chiqish</span>
+                <span className="ml-2">Tizimdan chiqish</span>
               </Button>
             ) : (
               <Link href="/login" className="block" onClick={() => setMenuOpen(false)}>
