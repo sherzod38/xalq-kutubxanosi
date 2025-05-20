@@ -35,8 +35,5 @@ export async function addBook(formData: FormData) {
     throw new Error("Kitob qo‘shishda xatolik: " + error.message);
   }
 
-  // 4 sekund kutish
-  await new Promise((resolve) => setTimeout(resolve, 4000));
-
   redirect("/books");
 }
