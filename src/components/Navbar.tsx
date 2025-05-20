@@ -80,13 +80,14 @@ export default function Navbar() {
           {/* Tizimdan chiqish tugmasi faqat user kirganda ko‘rinadi */}
           {user && (
             <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 w-full"
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 p-0 flex items-center justify-center md:w-8 md:h-8 md:p-0"
               onClick={handleSignOut}
+              title="Tizimdan chiqish"
             >
-              <LogOut className="w-4 h-4" />
-              Tizimdan chiqish
+              <LogOut className="w-5 h-5" />
+              <span className="sr-only">Tizimdan chiqish</span>
             </Button>
           )}
           <Link
