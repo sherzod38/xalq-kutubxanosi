@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+// import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
 import { useState, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
