@@ -17,7 +17,7 @@ export default function Navbar() {
   useEffect(() => {
     let isMounted = true;
     let pollCount = 0;
-    const maxPolls = 2;
+    const maxPolls = 3;
 
     const fetchUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
