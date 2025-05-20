@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
-export default function SearchForm() {
-  const [value, setValue] = useState('');
+interface SearchFormProps {
+  defaultValue?: string;
+}
+
+function SearchForm({ defaultValue = "" }: SearchFormProps) {
+  const [value, setValue] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<{ id: string; title: string; author: string }[]>([]);
   const router = useRouter();
   const supabase = createClient();
@@ -33,8 +37,8 @@ export default function SearchForm() {
       const { data, error } = await supabase
         .from('books')
         .select('id, title, author')
-        .or(`title.ilike.%${query}%,author.ilike.%${query}%`) // ilike ni or bilan birlashtiramiz
-        .limit(5); // Maksimum 5 ta taklif
+        .or(`title.ilike.%${query}%,author.ilike.%${query}%`)
+        .limit(5);
       if (error) console.error('Search error:', error.message);
       else setSuggestions(data || []);
     },
@@ -42,7 +46,7 @@ export default function SearchForm() {
   );
 
   // Debounce bilan qidiruvni ishga tushirish
-  const debouncedSearch = debounce<[string]>(searchBooks, 300);
+  const debouncedSearch = useCallback(debounce<[string]>(searchBooks, 300), [searchBooks]);
 
   useEffect(() => {
     debouncedSearch(value);
@@ -56,12 +60,11 @@ export default function SearchForm() {
 
   const handleSuggestionClick = (id: string) => {
     router.push(`/book/${id}`);
-    setValue(''); // Qidiruv maydonini tozalash
+    setValue('');
     setSuggestions([]);
   };
 
   return (
-    // <div className="relative w-full max-w-md"></div>
     <div className="relative w-full max-w-xs md:max-w-md">
       <form onSubmit={handleSubmit} className="flex gap-2 w-full">
         <input
@@ -94,3 +97,5 @@ export default function SearchForm() {
     </div>
   );
 }
+
+export default SearchForm;
