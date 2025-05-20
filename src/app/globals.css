@@ -120,3 +120,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+:root {
+  --background: #fff;
+  --foreground: #000;
+  --card: #fff;
+  --card-foreground: #1a202c;
+  --muted-foreground: #6b7280;
+  /* boshqa ranglar... */
+}
+.bg-card {
+  background-color: var(--card);
+}
+.text-card-foreground {
+  color: var(--card-foreground);
+}
+.text-muted-foreground {
+  color: var(--muted-foreground);
+}
