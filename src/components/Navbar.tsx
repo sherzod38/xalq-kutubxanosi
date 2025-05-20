@@ -14,36 +14,7 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
-  useEffect(() => {
-    let isMounted = true;
-    let pollCount = 0;
-    const maxPolls = 3;
-
-    const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (isMounted) setUser(session?.user ?? null);
-    };
-    fetchUser();
-
-    const interval = setInterval(() => {
-      if (pollCount < maxPolls) {
-        fetchUser();
-        pollCount++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 2000);
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (isMounted) setUser(session?.user ?? null);
-    });
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-      subscription?.unsubscribe();
-    };
-  }, [supabase]);
+  
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
