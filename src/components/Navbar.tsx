@@ -79,10 +79,10 @@ export default function Navbar() {
             onClick={handleOverlayClick}
           ></div>
         )}
-        {/* Slide-in menyu */}
+        {/* Slide-in menyu (o'ngdan chiqadi) */}
         <div
-          className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
-            ${menuOpen ? 'translate-x-0' : '-translate-x-full'}
+          className={`fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
+            ${menuOpen ? 'translate-x-0' : 'translate-x-full'}
             md:static md:translate-x-0 md:shadow-none md:bg-transparent md:w-auto md:h-auto md:flex md:items-center md:space-x-4 md:relative`}
         >
           <div className="flex flex-col h-full p-6 space-y-4 md:flex-row md:space-y-0 md:p-0 md:items-center">
