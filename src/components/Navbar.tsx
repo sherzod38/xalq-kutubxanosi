@@ -40,17 +40,23 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
-        <div className="flex items-center w-full md:w-auto">
-          <Link href="/" className="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
+        {/* Mobilda markazda, desktopda chapda */}
+        <div className="flex items-center justify-center w-full md:w-auto relative">
+          <Link
+            href="/"
+            className="text-2xl font-bold text-gray-800 mb-2 md:mb-0 mx-auto md:mx-0 block text-center"
+            style={{ width: "100%" }}
+          >
             Xalq Kutubxonasi
           </Link>
-          {/* Hamburger menyu tugmasi Xalq Kutubxonasi yonida */}
+          {/* Hamburger menyu tugmasi mobilda o‘ng tomonda, kattaroq */}
           <button
-            className="md:hidden ml-2 text-gray-700 focus:outline-none"
+            className="md:hidden absolute right-0 top-1/2 -translate-y-1/2 text-gray-700 focus:outline-none"
+            style={{ fontSize: "2.2rem" }}
             onClick={() => setMenuOpen(true)}
             aria-label="Mobil menyuni ochish"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-9 h-9" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -71,13 +77,13 @@ export default function Navbar() {
             </div>
             <Link
               href="/books"
-              className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+              className="font-bold text-gray-700 hover:text-gray-900 transition-colors px-2 py-1"
             >
               Kitoblar
             </Link>
             <Link
               href="/admin"
-              className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+              className="font-bold text-gray-700 hover:text-gray-900 transition-colors px-2 py-1"
             >
               Mening sahifam
             </Link>
@@ -85,7 +91,7 @@ export default function Navbar() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="w-auto px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
+                className="w-auto px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors font-bold"
                 onClick={handleSignOut}
                 title="chiqish"
               >
@@ -93,7 +99,7 @@ export default function Navbar() {
               </Button>
             ) : (
               <Link href="/login">
-                <Button size="sm" className="w-full">Kirish</Button>
+                <Button size="sm" className="w-full font-bold">Kirish</Button>
               </Link>
             )}
           </div>
@@ -125,14 +131,14 @@ export default function Navbar() {
             </button>
             <Link
               href="/books"
-              className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+              className="block font-bold text-gray-700 hover:text-gray-900 transition-colors px-2 py-1"
               onClick={() => setMenuOpen(false)}
             >
               Kitoblar
             </Link>
             <Link
               href="/admin"
-              className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
+              className="block font-bold text-gray-700 hover:text-gray-900 transition-colors px-2 py-1"
               onClick={() => setMenuOpen(false)}
             >
               Mening sahifam
@@ -141,7 +147,7 @@ export default function Navbar() {
               <Button
                 variant="destructive"
                 size="sm"
-                className="w-full px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
+                className="w-full px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors font-bold"
                 onClick={() => { handleSignOut(); setMenuOpen(false); }}
                 title="chiqish"
               >
@@ -149,7 +155,7 @@ export default function Navbar() {
               </Button>
             ) : (
               <Link href="/login" className="block" onClick={() => setMenuOpen(false)}>
-                <Button size="sm" className="w-full">Kirish</Button>
+                <Button size="sm" className="w-full font-bold">Kirish</Button>
               </Link>
             )}
           </div>
