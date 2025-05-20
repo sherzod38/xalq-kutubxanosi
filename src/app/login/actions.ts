@@ -35,6 +35,8 @@ export async function login(formData: FormData) {
   }
 
   // Muvaffaqiyatli login bo‘lsa, admin sahifasiga yo‘naltiramiz
+  // return redirect('/admin'); // eski
+  // window.location.href = '/admin'; // Bu qator server actionda ishlamaydi, faqat clientda ishlaydi
   return redirect('/admin');
 }
 
@@ -68,5 +70,7 @@ export async function signup(formData: FormData) {
   }
 
   // Muvaffaqiyatli ro‘yxatdan o‘tgan bo‘lsa, admin sahifasiga yo‘naltiramiz
+  // return redirect('/admin'); // eski
+  // window.location.href = '/admin'; // Bu qator server actionda ishlamaydi, faqat clientda ishlaydi
   return redirect('/admin');
 }

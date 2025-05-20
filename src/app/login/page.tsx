@@ -24,7 +24,10 @@ export default function LoginPage() {
             {errorMessage}
           </div>
         )}
-        <form action={login} className="space-y-6">
+        <form action={async (formData) => {
+          await login(formData);
+          window.location.href = '/admin';
+        }} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
