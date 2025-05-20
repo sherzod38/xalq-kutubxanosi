@@ -5,10 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { login } from './actions';
 import Link from 'next/link';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const error = searchParams.get('error');
@@ -24,9 +26,21 @@ export default function LoginPage() {
             {errorMessage}
           </div>
         )}
+        {showAlert && (
+          <Alert variant="default" className="mb-4">
+            <AlertTitle>Assalomu alaykum!</AlertTitle>
+            <AlertDescription>
+              Siz muaffaqiyatli tizimga kirdingiz. Endi siz kitob qo'sha olasiz.
+            </AlertDescription>
+          </Alert>
+        )}
         <form action={async (formData) => {
           await login(formData);
-          window.location.href = '/admin';
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+            window.location.href = '/admin';
+          }, 3000);
         }} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
