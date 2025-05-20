@@ -57,9 +57,21 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
-          Xalq Kutubxonasi
-        </Link>
+        <div className="flex items-center w-full md:w-auto">
+          <Link href="/" className="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
+            Xalq Kutubxonasi
+          </Link>
+          {/* Hamburger menyu tugmasi Xalq Kutubxonasi yonida */}
+          <button
+            className="md:hidden ml-2 text-gray-700 focus:outline-none"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Mobil menyuni ochish"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
 
         {/* SearchForm faqat mobilda ostida, desktopda yonida */}
         <div className="w-full md:hidden flex justify-center mb-2">
@@ -88,14 +100,13 @@ export default function Navbar() {
             </Link>
             {user ? (
               <Button
-                variant="ghost"
-                size="icon"
-                className="w-9 h-9 p-0 flex items-center justify-center"
+                variant="destructive"
+                size="sm"
+                className="w-auto px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
                 onClick={handleSignOut}
                 title="Tizimdan chiqish"
               >
-                <LogOut className="w-5 h-5" />
-                <span className="sr-only">Tizimdan chiqish</span>
+                Tizimdan chiqish
               </Button>
             ) : (
               <Link href="/login">
@@ -103,17 +114,6 @@ export default function Navbar() {
               </Link>
             )}
           </div>
-
-          {/* Mobil uchun hamburger */}
-          <button
-            className="md:hidden block text-gray-700 focus:outline-none"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Mobil menyuni ochish"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
         </div>
 
         {/* Mobil menyu uchun overlay va yon panel */}
@@ -156,14 +156,13 @@ export default function Navbar() {
             </Link>
             {user ? (
               <Button
-                variant="ghost"
-                size="icon"
-                className="w-9 h-9 p-0 flex items-center justify-center"
+                variant="destructive"
+                size="sm"
+                className="w-full px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
                 onClick={() => { handleSignOut(); setMenuOpen(false); }}
                 title="Tizimdan chiqish"
               >
-                <LogOut className="w-5 h-5" />
-                <span className="ml-2">Tizimdan chiqish</span>
+                Tizimdan chiqish
               </Button>
             ) : (
               <Link href="/login" className="block" onClick={() => setMenuOpen(false)}>
