@@ -8,29 +8,25 @@ import SearchForm from './SearchForm';
 import { useState, useEffect, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const supabase = useMemo(() => createClient(), []);
+  const pathname = usePathname();
 
-  // Foydalanuvchini tekshirish va auth o‘zgarishini kuzatish
   useEffect(() => {
-    // Dastlabki foydalanuvchini olish
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
     });
-
-    // Auth state o‘zgarsa, user-ni yangilash
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-
-    // Tozalash
     return () => {
       listener.subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
