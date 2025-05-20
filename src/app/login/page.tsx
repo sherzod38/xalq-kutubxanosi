@@ -30,7 +30,7 @@ export default function LoginPage() {
           <Alert variant="default" className="mb-4">
             <AlertTitle>Assalomu alaykum!</AlertTitle>
             <AlertDescription>
-              Siz muaffaqiyatli tizimga kirdingiz. Endi siz kitob qo'sha olasiz.
+              Siz muaffaqiyatli tizimga kirdingiz. Endi siz kitob qo`sha olasiz.
             </AlertDescription>
           </Alert>
         )}
