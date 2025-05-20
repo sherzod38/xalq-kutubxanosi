@@ -79,7 +79,7 @@ export default function Navbar() {
               href="/admin"
               className="text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
             >
-              Admin
+              Mening sahifam
             </Link>
             {user ? (
               <Button
@@ -87,9 +87,9 @@ export default function Navbar() {
                 size="sm"
                 className="w-auto px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
                 onClick={handleSignOut}
-                title="Tizimdan chiqish"
+                title="chiqish"
               >
-                Tizimdan chiqish
+                chiqish
               </Button>
             ) : (
               <Link href="/login">
@@ -135,7 +135,7 @@ export default function Navbar() {
               className="block text-gray-600 hover:text-gray-900 transition-colors px-2 py-1"
               onClick={() => setMenuOpen(false)}
             >
-              Admin
+              Mening sahifam
             </Link>
             {user ? (
               <Button
@@ -143,9 +143,9 @@ export default function Navbar() {
                 size="sm"
                 className="w-full px-4 py-2 bg-red-600 text-white hover:bg-red-700 transition-colors"
                 onClick={() => { handleSignOut(); setMenuOpen(false); }}
-                title="Tizimdan chiqish"
+                title="chiqish"
               >
-                Tizimdan chiqish
+               chiqish
               </Button>
             ) : (
               <Link href="/login" className="block" onClick={() => setMenuOpen(false)}>
