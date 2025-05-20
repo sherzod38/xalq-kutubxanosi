@@ -16,6 +16,8 @@ export default function Navbar() {
 
   useEffect(() => {
     let isMounted = true;
+    let pollCount = 0;
+    const maxPolls = 2;
 
     const fetchUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -23,8 +25,14 @@ export default function Navbar() {
     };
     fetchUser();
 
-    // Polling: har 2 soniyada sessionni tekshiradi
-    const interval = setInterval(fetchUser, 2000);
+    const interval = setInterval(() => {
+      if (pollCount < maxPolls) {
+        fetchUser();
+        pollCount++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (isMounted) setUser(session?.user ?? null);
