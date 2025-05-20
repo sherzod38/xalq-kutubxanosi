@@ -1,18 +1,55 @@
 // Navbar.tsx
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
-import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { useState, useEffect, useMemo } from 'react';
+import { User } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 
-export default async function Navbar() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = useMemo(() => createClient(), []);
 
-  async function handleSignOut() {
-    "use server";
+  useEffect(() => {
+    let isMounted = true;
+    let pollCount = 0;
+    const maxPolls = 3;
+
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (isMounted) setUser(session?.user ?? null);
+    };
+    fetchUser();
+
+    const interval = setInterval(() => {
+      if (pollCount < maxPolls) {
+        fetchUser();
+        pollCount++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (isMounted) setUser(session?.user ?? null);
+    });
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      subscription?.unsubscribe();
+    };
+  }, [supabase]);
+
+  const handleSignOut = async () => {
     await supabase.auth.signOut();
-  }
+    setUser(null);
+    window.location.href = '/login';
+  };
 
   return (
     <nav className="bg-white shadow-md p-4 sticky top-0 z-50">
@@ -23,10 +60,11 @@ export default async function Navbar() {
 
         <button
           className="md:hidden block text-gray-700 focus:outline-none"
-          type="button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Mobil menyuni ochish"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            <path strokeLinecap="round" strokeLinejoin="round" d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
           </svg>
         </button>
 
@@ -38,19 +76,17 @@ export default async function Navbar() {
           </div>
         </div>
 
-        <div className="w-full md:w-auto md:flex items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
+        <div className={`w-full md:w-auto md:flex items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0 ${menuOpen ? 'block' : 'hidden'} md:block`}>
           {user && (
-            <form action={handleSignOut}>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 w-full"
-                type="submit"
-              >
-                <LogOut className="w-4 h-4" />
-                Tizimdan chiqish
-              </Button>
-            </form>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 w-full"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4" />
+              Tizimdan chiqish
+            </Button>
           )}
           <Link
             href="/books"
