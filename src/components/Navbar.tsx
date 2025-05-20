@@ -12,16 +12,19 @@ import { createClient } from '@/utils/supabase/client';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  // createClient ni tashqarida chaqiramiz
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     let isMounted = true;
+
     const fetchUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (isMounted) setUser(session?.user ?? null);
     };
     fetchUser();
+
+    // Polling: har 2 soniyada sessionni tekshiradi
+    const interval = setInterval(fetchUser, 2000);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (isMounted) setUser(session?.user ?? null);
@@ -29,6 +32,7 @@ export default function Navbar() {
 
     return () => {
       isMounted = false;
+      clearInterval(interval);
       subscription?.unsubscribe();
     };
   }, [supabase]);
@@ -36,7 +40,7 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    window.location.href = '/login'; // To‘liq reload
+    window.location.href = '/login';
   };
 
   return (
