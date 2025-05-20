@@ -3,13 +3,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'; // Client-side Supabase
+import { createClient } from '@/utils/supabase/client';
 
 export default function SearchForm() {
   const [value, setValue] = useState('');
   const [suggestions, setSuggestions] = useState<{ id: string; title: string; author: string }[]>([]);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Debounce funksiyasi generic tur bilan
   const debounce = <T extends unknown[]>(
