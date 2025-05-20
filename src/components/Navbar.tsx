@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import SearchForm from './SearchForm';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 // import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
@@ -13,20 +13,23 @@ import { createClient } from '@/utils/supabase/client';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const supabase = createClient();
+  // createClient ni tashqarida chaqiramiz
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      if (isMounted) setUser(user);
     };
     fetchUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      if (isMounted) setUser(session?.user ?? null);
     });
 
     return () => {
+      isMounted = false;
       subscription?.unsubscribe();
     };
   }, [supabase]);
