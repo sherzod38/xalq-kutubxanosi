@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import ReCAPTCHA from "react-google-recaptcha";
 
 export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

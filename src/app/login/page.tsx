@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react';
 import { login } from './actions';
 import Link from 'next/link';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import ReCAPTCHA from "react-google-recaptcha";
-import { useRef } from "react";
+
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
