@@ -13,7 +13,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
-  const recaptchaRef = useRef<any>(null);
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
   const [captcha, setCaptcha] = useState<string | null>(null);
 
   useEffect(() => {

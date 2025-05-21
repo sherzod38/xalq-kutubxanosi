@@ -8,7 +8,7 @@ export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [captcha, setCaptcha] = useState<string | null>(null);
-  const recaptchaRef = useRef<any>(null);
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
