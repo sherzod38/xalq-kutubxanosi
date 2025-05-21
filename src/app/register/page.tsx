@@ -7,8 +7,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [captcha, setCaptcha] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,16 +17,10 @@ export default function RegisterPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    if (!captcha) {
-      setErrorMessage("Iltimos, CAPTCHA ni to‘ldiring!");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ email, password, "g-recaptcha-response": captcha }),
+        body: JSON.stringify({ email, password }),
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -42,8 +34,6 @@ export default function RegisterPage() {
       setErrorMessage('Ro‘yxatdan o‘tishda xatolik yuz berdi');
     } finally {
       setIsLoading(false);
-      if (recaptchaRef.current) recaptchaRef.current.reset();
-      setCaptcha(null);
     }
   }
 
@@ -83,16 +73,9 @@ export default function RegisterPage() {
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <div className="flex justify-center">
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey="6LdUi0IrAAAAAJ4gVzQAzwIaE7toOMPDJIczMgiA"
-              onChange={setCaptcha}
-            />
-          </div>
           <button
             type="submit"
-            disabled={isLoading || !captcha}
+            disabled={isLoading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:bg-blue-400"
           >
             {isLoading ? "Ro‘yxatdan o‘tilmoqda..." : "Ro‘yxatdan o‘tish"}

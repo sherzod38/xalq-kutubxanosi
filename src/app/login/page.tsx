@@ -13,8 +13,6 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAlert, setShowAlert] = useState(false);
-  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
-  const [captcha, setCaptcha] = useState<string | null>(null);
 
   useEffect(() => {
     const error = searchParams.get('error');
@@ -39,11 +37,6 @@ export default function LoginPage() {
           </Alert>
         )}
         <form action={async (formData) => {
-          if (!captcha) {
-            setShowAlert(true);
-            return;
-          }
-          formData.append("g-recaptcha-response", captcha);
           const result = await login(formData);
           if ((result as { error?: string })?.error) {
             setShowAlert(true);
@@ -77,17 +70,9 @@ export default function LoginPage() {
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <div className="flex justify-center">
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey="6LdUi0IrAAAAAJ4gVzQAzwIaE7toOMPDJIczMgiA"
-              onChange={setCaptcha}
-            />
-          </div>
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-            disabled={!captcha}
           >
             Kirish
           </button>

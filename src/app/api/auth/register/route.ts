@@ -4,24 +4,10 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, "g-recaptcha-response": captchaToken } = await req.json();
+    const { email, password } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email va parol to'ldirilishi shart" }, { status: 400 });
-    }
-
-    // reCAPTCHA tokenini tekshirish
-    if (!captchaToken) {
-      return NextResponse.json({ error: "CAPTCHA to'ldirilmagan" }, { status: 400 });
-    }
-    const captchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `secret=6LcUbUIrAAAAAMqbNquVaPSNEP4obhiHjtVdfRNM&response=${captchaToken}`,
-    });
-    const captchaData = await captchaRes.json();
-    if (!captchaData.success) {
-      return NextResponse.json({ error: "CAPTCHA xato yoki noto'g'ri" }, { status: 400 });
     }
 
     const supabase = await createSupabaseServerClient();
