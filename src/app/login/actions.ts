@@ -7,6 +7,21 @@ import { createSupabaseServerClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
 export async function login(formData: FormData) {
+  // reCAPTCHA tokenini tekshirish
+  const captchaToken = formData.get("g-recaptcha-response");
+  if (!captchaToken) {
+    return redirect('/login?error=' + encodeURIComponent('CAPTCHA to‘ldirilmagan'));
+  }
+  const captchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `secret=6LcUbUIrAAAAAMqbNquVaPSNEP4obhiHjtVdfRNM&response=${captchaToken}`,
+  });
+  const captchaData = await captchaRes.json();
+  if (!captchaData.success) {
+    return redirect('/login?error=' + encodeURIComponent('CAPTCHA xato yoki noto‘g‘ri'));
+  }
+
   const supabase = await createSupabaseServerClient();
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -36,22 +51,7 @@ export async function login(formData: FormData) {
   }
 
   // Muvaffaqiyatli login bo‘lsa, admin sahifasiga yo‘naltiramiz
-  // return redirect('/admin'); // eski
-  // window.location.href = '/admin'; // Bu qator server actionda ishlamaydi, faqat clientda ishlaydi
   return redirect('/admin');
-  const captchaToken = formData.get("g-recaptcha-response");
-  if (!captchaToken) {
-    return redirect('/login?error=' + encodeURIComponent('CAPTCHA to‘ldirilmagan'));
-  }
-  const captchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `secret=6LcUbUIrAAAAAMqbNquVaPSNEP4obhiHjtVdfRNM&response=${captchaToken}`,
-  });
-  const captchaData = await captchaRes.json();
-  if (!captchaData.success) {
-    return redirect('/login?error=' + encodeURIComponent('CAPTCHA xato yoki noto‘g‘ri'));
-  }
 }
 
 export async function signup(formData: FormData) {
