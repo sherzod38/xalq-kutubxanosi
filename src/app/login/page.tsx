@@ -80,7 +80,7 @@ export default function LoginPage() {
           <div className="flex justify-center">
             <ReCAPTCHA
               ref={recaptchaRef}
-              sitekey="6LcUbUIrAAAAAKvezmm5LfUOXxMxIcox0GQZGixh"
+              sitekey="6LdUi0IrAAAAAJ4gVzQAzwIaE7toOMPDJIczMgiA"
               onChange={setCaptcha}
             />
           </div>
